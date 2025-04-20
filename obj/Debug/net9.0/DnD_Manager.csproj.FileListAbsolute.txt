@@ -95,4 +95,4 @@
 /Users/ryansprague/Documents/GitHub/DnD_manager/obj/Debug/net9.0/DnD_Manager.pdb
 /Users/ryansprague/Documents/GitHub/DnD_manager/obj/Debug/net9.0/DnD_Manager.genruntimeconfig.cache
 /Users/ryansprague/Documents/GitHub/DnD_manager/obj/Debug/net9.0/ref/DnD_Manager.dll
-/Users/ryansprague/Documents/GitHub/DnD_manager/obj/Debug/net9.0/compressed/vpjhyik7hl-l01y1ymixo.gz
+/Users/ryansprague/Documents/GitHub/DnD_manager/obj/Debug/net9.0/compressed/vpjhyik7hl-s9rfte59tk.gz

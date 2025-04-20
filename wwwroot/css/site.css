@@ -33,3 +33,10 @@ body {
 .char-card {
   max-width: 230px;
 }
+
+.sync-header-height {
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+  }
+  

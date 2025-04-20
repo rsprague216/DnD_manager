@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DnD_Manager")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6d1f6ce5725d7451a1068da8a2b4ee621132be34")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2f4861a1452ccd9cd0ff9096640196a14a75d6a5")]
 [assembly: System.Reflection.AssemblyProductAttribute("DnD_Manager")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DnD_Manager")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
