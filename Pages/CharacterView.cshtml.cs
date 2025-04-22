@@ -111,6 +111,13 @@ public class CharacterViewModel : PageModel
         "Elvish",
         "Draconic"
     };
+    public List<string> Actions { get; set; } = new List<string>
+    {
+        "Unarmed Strike",
+        "Damage",
+        "Grapple",
+        "Shove"
+    };
 
 
     public CharacterViewModel(ILogger<CharacterViewModel> logger)

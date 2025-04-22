@@ -19,7 +19,6 @@
 /Users/ryansprague/Documents/GitHub/DnD_manager/obj/Debug/net9.0/scopedcss/bundle/DnD_Manager.styles.css
 /Users/ryansprague/Documents/GitHub/DnD_manager/obj/Debug/net9.0/scopedcss/projectbundle/DnD_Manager.bundle.scp.css
 /Users/ryansprague/Documents/GitHub/DnD_manager/obj/Debug/net9.0/compressed/0txvpf9pvc-61n19gt1b8.gz
-/Users/ryansprague/Documents/GitHub/DnD_manager/obj/Debug/net9.0/compressed/x62y5krwyg-xtxxf3hu2r.gz
 /Users/ryansprague/Documents/GitHub/DnD_manager/obj/Debug/net9.0/compressed/0kuggammyd-bqjiyaj88i.gz
 /Users/ryansprague/Documents/GitHub/DnD_manager/obj/Debug/net9.0/compressed/s8pk3x2t9w-c2jlpeoesf.gz
 /Users/ryansprague/Documents/GitHub/DnD_manager/obj/Debug/net9.0/compressed/xs8tnmnio6-erw9l3u2r3.gz
@@ -96,3 +95,4 @@
 /Users/ryansprague/Documents/GitHub/DnD_manager/obj/Debug/net9.0/DnD_Manager.genruntimeconfig.cache
 /Users/ryansprague/Documents/GitHub/DnD_manager/obj/Debug/net9.0/ref/DnD_Manager.dll
 /Users/ryansprague/Documents/GitHub/DnD_manager/obj/Debug/net9.0/compressed/vpjhyik7hl-s9rfte59tk.gz
+/Users/ryansprague/Documents/GitHub/DnD_manager/obj/Debug/net9.0/compressed/x62y5krwyg-xtxxf3hu2r.gz

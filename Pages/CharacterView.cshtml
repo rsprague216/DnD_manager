@@ -167,13 +167,16 @@
               <button class="nav-link" data-bs-toggle="tab" data-bs-target="#actions" role="tab">Actions</button>
             </li>
             <li class="nav-item">
-              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#spells" role="tab">Spells</button>
-            </li>
-            <li class="nav-item">
               <button class="nav-link" data-bs-toggle="tab" data-bs-target="#inventory" role="tab">Inventory</button>
             </li>
             <li class="nav-item">
               <button class="nav-link" data-bs-toggle="tab" data-bs-target="#features" role="tab">Features</button>
+            </li>
+            <li class="nav-item"></li>
+              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#background" role="tab">Background</button>
+            </li>
+            <li class="nav-item"></li>
+              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#notes" role="tab">Notes</button>
             </li>
           </ul>
         </div>
@@ -400,7 +403,7 @@
             <!-- **** Actions Tab **** -->
             <div class="tab-pane fade" id="actions" role="tabpanel">
               <div class="container">
-                <div class="row d-flex align-items-stretch">
+                <div class="row d-flex align-items-stretch h-100">
                   <div class="col-md-5">
                     <div class="card h-100">
                       <div class="card-header">
@@ -409,7 +412,7 @@
                             <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#attackTab" role="tab">Attack</button>
                           </li>
                           <li class="nav-item">
-                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#spellsTab2" role="tab">Spells</button>
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#spellsTab" role="tab">Spells</button>
                           </li>
                       </div>
                       <div class="card-body">
@@ -427,7 +430,7 @@
                             </div>
                           </div>
 
-                          <div class="tab-pane fade show" id="spellsTab2" role="tabpanel">
+                          <div class="tab-pane fade show" id="spellsTab" role="tabpanel">
                             <div class="container">
                               <ul class="list-group list-group-flush">
                                 <li class="list-group-item">
@@ -465,50 +468,73 @@
                         </ul>
                       </div>
                       <div class="card-body">
+                        <input type="hidden" id="actionsPaneHeight" />
                         <div class="tab-content">
-                          <div class="tab-pane fade show active" id="actionsTab" role="tabpanel">
+                          <div class="tab-pane fade show active actions-pane" id="actionsTab" role="tabpanel">
                             <div class="container">
-                              <h6 class="card-subtitle mb-2 text-muted">Actions</h6>
+                              <div class="card">
+                                <div class="card-header">
+                                  <h6 class="card-title mb-2 text-muted">Combat Actions</h6>
+                                </div>
+                                <div class="card-body">
+                                  <div class="card-text text-muted">
+                                    Attack,
+                                    Dash,
+                                    Disengage,
+                                    Dodge,
+                                    Grapple,
+                                    Help,
+                                    Hide,
+                                    Improvise,
+                                    Influence,
+                                    Magic,
+                                    Ready,
+                                    Search,
+                                    Shove,
+                                    Study,
+                                    Use an Object
+                                  </div>
+                                </div>
+                              </div>
+                              <ul class="list-group list-group-flush">
+                                @foreach (var action in Model.Actions)
+                                {
+                                  <li class="list-group-item">
+                                    <span>@action</span>
+                                  </li>
+                                }
+                              </ul>
                             </div>
                           </div>
                         
-                          <div class="tab-pane fade show" id="bonusActionsTab" role="tabpanel">
+                          <div class="tab-pane fade show actions-pane" id="bonusActionsTab" role="tabpanel">
                             <div class="container">
                               <h6 class="card-subtitle mb-2 text-muted">Bonus Actions</h6>
                             </div>
                           </div>
 
-                          <div class="tab-pane fade show" id="reactionsTab" role="tabpanel">
+                          <div class="tab-pane fade show actions-pane" id="reactionsTab" role="tabpanel">
                             <div class="container">
                               <h6 class="card-subtitle mb-2 text-muted">Reactions</h6>
                             </div>
                           </div>
 
-                          <div class="tab-pane fade show" id="otherActionsTab" role="tabpanel">
+                          <div class="tab-pane fade show actions-pane" id="otherActionsTab" role="tabpanel">
                             <div class="container">
                               <h6 class="card-subtitle mb-2 text-muted">Other Actions</h6>
                             </div>
                           </div>
 
-                          <div class="tab-pane fade show" id="limitedActionsTab" role="tabpanel">
+                          <div class="tab-pane fade show actions-pane" id="limitedActionsTab" role="tabpanel">
                             <div class="container">
                               <h6 class="card-subtitle mb-2 text-muted">Limited Use Actions</h6>
                             </div>
                           </div>
-
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            <!-- **** Spells Tab **** -->
-            <div class="tab-pane fade" id="spells" role="tabpanel">
-              <div class="container">
-                <h5>Spells</h5>
-                <p>Spells content goes here.</p>
               </div>
             </div>
 
@@ -525,6 +551,22 @@
               <div class="container">
                 <h5>Features</h5>
                 <p>Features content goes here.</p>
+              </div>
+            </div>
+
+            <!-- **** Features Tab **** -->
+            <div class="tab-pane fade" id="background" role="tabpanel">
+              <div class="container">
+                <h5>Background</h5>
+                <p>Background content goes here.</p>
+              </div>
+            </div>
+
+            <!-- **** Features Tab **** -->
+            <div class="tab-pane fade" id="notes" role="tabpanel">
+              <div class="container">
+                <h5>Notes</h5>
+                <p>Notes content goes here.</p>
               </div>
             </div>
           </div>
