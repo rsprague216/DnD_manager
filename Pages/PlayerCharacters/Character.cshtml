@@ -1,0 +1,303 @@
+@page "{id}"
+@model DnD_Manager.Pages.PlayerCharacters.CharacterModel
+@{
+  ViewData["Title"] = Model.Character.Name;
+}
+
+<div class="container">
+  
+  <div class="row d-flex align-items-stretch">
+
+    <div class="col-lg-9 mb-3">
+      <div class="card h-100">
+        @* <div class="row g-0">
+          <div class="col-lg-3">
+            <!-- **** Profile Picture **** -->
+            <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" class="img-fluid" alt="Profile Picture" />
+          </div>
+          <div class="col-lg-9"> *@
+        <div class="card-header">
+          <div class="row">
+            <div class="col-10 d-flex align-items-center">
+              <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" class="img-thumbnail me-3" style="width: 80px; height: 80px; object-fit: cover;" />
+              <!-- **** Character Name and Class **** -->
+              <div class="overflow-hidden">
+                <h3 class="card-title text-nowrap text-truncate">@Model.Character.Name</h3>
+                <h5 class="card-subtitle text-muted text-nowrap text-truncate">
+                  @Model.Character.Race.Name
+                  @foreach (var charClass in Model.Character.CharacterClasses)
+                  {
+                  @($" / {charClass.Class.Name} {charClass.Level}")
+                  }
+                </h5>
+              </div>
+            </div>
+            <div class="col-2">
+              <button type="button" class="btn btn-outline-secondary btn-sm border-0 float-end" data-bs-toggle="modal" data-bs-target="#editCharacterModal"><i class="bi bi-gear-fill"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-8">
+              <!-- **** Hit Points **** -->
+              <div class="row mb-3 align-items-center">
+                <div class="col">
+                  <div class="progress" style="height: 20px;">
+                    @{
+                      // Calculate the percentage of hit points remaining
+                      var percentage = ((double)Model.Character.CurrentHitPoints / Model.Character.HitPoints) * 100;
+                    }
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: @($"{percentage}%");" aria-valuenow=@percentage aria-valuemin="0" aria-valuemax="100">@Model.Character.CurrentHitPoints / @Model.Character.HitPoints</div>
+                  </div>
+                </div>
+                @* <div class="col-lg-4">
+                  <div class="input-group w-100" style="width: 110px;" role="group" aria-label="hp buttons">
+                    <button type="button" class="btn btn-outline-secondary btn-sm"><i class="bi bi-dash-lg"></i></button>
+                    <input type="text" class="form-control form-control-sm text-center" aria-label="Current HP" />
+                    <button type="button" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i></button>
+                  </div>
+                </div> *@
+              </div>
+              <div class="row mb-3 align-items-center">
+                <div class="col">
+                  <!-- **** Rest and Conditions Button Group **** -->
+                  <div class="btn-group w-100" role="group" aria-label="rest buttons">
+                    <button type="button" class="btn btn-outline-secondary btn" data-bs-toggle="modal" data-bs-target="#RestModal"><!--<i class="bi bi-fire"></i>-->Rest</button>
+                    <button type="button" class="btn btn-outline-secondary btn" data-bs-toggle="modal" data-bs-target="#conditionsModal"><!--<i class="bi bi-bandaid-fill"></i>-->Conditions</button>
+                    <button type="button" class="btn btn-outline-secondary btn" data-bs-toggle="modal" data-bs-target="#defencesModal"><!--<i class="bi bi-shield-fill"></i>-->Defences</button>
+                    <button type="button" class="btn btn-outline-secondary btn" data-bs-toggle="modal" data-bs-target="#HealthModal">Health</Template></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 flex-shrink-0">
+              <div class="card w-100 overflow-auto" style="height: 6em;">
+                <div class="card-body overflow-auto text-center">
+                  <ul class="list-group list-group-flush">
+                    @foreach (var condition in Model.Character.Conditions)
+                    {
+                    <li class="list-group text-muted">
+                        @condition.Condition.Name
+                    </li>
+                    }
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+        @* </div> *@
+    </div>
+
+    <!-- **** AC, Initiative, Speed, and Proficiency **** -->
+    <div class="col-lg-3 mb-3">
+      <div class="card text-center h-100">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-6 col-3 mb-3">
+              <div class="card text-center">
+                <div class="card-header py-2">
+                  <small class="card-subtitle mb-2 text-muted">AC</small>
+                </div>
+                <div class="card-body py-2 px-1">
+                  <h4 class="card-subtitle mb-2 text-muted">13</h4>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-lg-6 col-3 mb-3">
+              <div class="card text-center">
+                <div class="card-header py-2">
+                  <small class="card-subtitle mb-2 text-muted">Init</small>
+                </div>
+                <div class="card-body py-2 px-1">
+                  <h4 class="card-subtitle mb-2 text-muted">+5</h4>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6 col-3 mb-3">
+              <div class="card text-center">
+                <div class="card-header py-2">
+                  <small class="card-subtitle mb-2 text-muted">Speed</small>
+                </div>
+                <div class="card-body py-2 px-1">
+                  <h4 class="card-subtitle mb-2 text-muted">30 ft</h4>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6 col-3 mb-3">
+              <div class="card text-center">
+                <div class="card-header py-2">
+                  <small class="card-subtitle mb-2 text-muted">Prof</small>
+                </div>
+                <div class="card-body py-2 px-1">
+                  <h4 class="card-subtitle mb-2 text-muted">+2</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- **** Body Card **** -->
+  <div class="card">
+    <div class="card-body">
+      Other stuff
+    </div>
+  </div>
+
+  </div>
+</div>
+
+
+<!-- **** Modal for Rest Actions **** -->
+<div class="modal fade" id="RestModal" tabindex="-1" aria-labelledby="RestModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="RestModalLabel">Rest</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- **** Conditions content **** -->
+        <p>
+          Long and Short Rest options will appear here.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- **** Modal for Character Conditions List **** -->
+<div class="modal fade" id="conditionsModal" tabindex="-1" aria-labelledby="conditionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="conditionsModalLabel">Conditions</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- **** Conditions content **** -->
+        <ul class="list-group list-group-flush">
+          @foreach (var condition in Model.AllConditions)
+          {
+            bool isChecked = Model.Character.Conditions.Any(c => c.ConditionId == condition.Id);
+            <li class="list-group-item">
+              <div class="form-check form-switch">
+                @if (isChecked)
+                {
+                  <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked>
+                }
+                else
+                {
+                  <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+                }
+                <label class="form-check-label" for="flexSwitchCheckDefault">@condition.Name</label>
+              </div>
+            </li>
+          }
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- **** Modal for Character Defences **** -->
+<div class="modal fade" id="defencesModal" tabindex="-1" aria-labelledby="defencesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="defencesModalLabel">Defences</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container">
+          <div class="row d-flex align-items-stretch">
+            <div class="col-lg-4 mb-3">
+              <div class="card h-100">
+                <!-- **** Resistances **** -->
+                <div class="card-header">
+                  <h6 class="card-subtitle mb-2 text-muted">Resistances</h6>
+                </div>
+                <div class="card-body">
+                  <ul class="list-group list-group-flush">
+                    @foreach (var resistance in Model.Resistances)
+                    {
+                      <li class="list-group">
+                        <span>@resistance</span>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 mb-3">
+              <div class="card h-100">
+                <!-- **** Immunities **** -->
+                <div class="card-header">
+                  <h6 class="card-subtitle mb-2 text-muted">Immunities</h6>
+                </div>
+                <div class="card-body">
+                  <ul class="list-group list-group-flush">
+                    @foreach (var immunity in Model.Immunities)
+                    {
+                      <li class="list-group">
+                        <span>@immunity</span>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 mb-3">
+              <div class="card h-100">
+                <!-- **** Vulnerabilities **** -->
+                <div class="card-header">
+                  <h6 class="card-subtitle mb-2 text-muted">Vulnerabilities</h6>
+                </div>
+                <div class="card-body">
+                  <ul class="list-group list-group-flush">
+                    @foreach (var vulnerability in Model.Vulnerabilities)
+                    {
+                      <li class="list-group">
+                        <span>@vulnerability</span>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- **** Modal for Rest Actions **** -->
+<div class="modal fade" id="HealthModal" tabindex="-1" aria-labelledby="HealthModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="HealthModalLabel">Health Managaer</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- **** Conditions content **** -->
+        <p>
+          Health and Damage options will appear here.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

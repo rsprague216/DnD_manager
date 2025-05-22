@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("26e20400-dd23-4c0e-aaab-1778a3e186a6")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("DnD_Manager")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e2556e41d307e5282451bfe665ae28b244a6a93f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+83436dc86baac899dba6da3d50487d18c27bd95a")]
 [assembly: System.Reflection.AssemblyProductAttribute("DnD_Manager")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DnD_Manager")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
