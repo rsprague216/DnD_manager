@@ -19,6 +19,10 @@ public class Character
 
     public int HitPoints { get; set; } = 0;
     public int CurrentHitPoints { get; set; } = 0;
+    public int TemporaryHitPoints { get; set; } = 0;
+
+    [Range(0, 6)]
+    public int ExhaustionLevel { get; set; } = 0;
 
     // Navigation properties
     public ICollection<CharacterStat> Stats { get; set; } = null!;

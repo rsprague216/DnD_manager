@@ -10,12 +10,6 @@
 
     <div class="col-lg-9 mb-3">
       <div class="card h-100">
-        @* <div class="row g-0">
-          <div class="col-lg-3">
-            <!-- **** Profile Picture **** -->
-            <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" class="img-fluid" alt="Profile Picture" />
-          </div>
-          <div class="col-lg-9"> *@
         <div class="card-header">
           <div class="row">
             <div class="col-10 d-flex align-items-center">
@@ -46,28 +40,35 @@
                   <div class="progress" style="height: 20px;">
                     @{
                       // Calculate the percentage of hit points remaining
-                      var percentage = ((double)Model.Character.CurrentHitPoints / Model.Character.HitPoints) * 100;
+                      var percentage = ((double)Model.Character.CurrentHitPoints / (Model.Character.HitPoints + Model.Character.TemporaryHitPoints)) * 100;
+                      var tempPercentage = ((double)Model.Character.TemporaryHitPoints / (Model.Character.HitPoints + Model.Character.TemporaryHitPoints)) * 100;
                     }
                     <div class="progress-bar bg-danger" role="progressbar" style="width: @($"{percentage}%");" aria-valuenow=@percentage aria-valuemin="0" aria-valuemax="100">@Model.Character.CurrentHitPoints / @Model.Character.HitPoints</div>
+                    <div class="progress-bar bg-info" role="progressbar" style="width: @($"{tempPercentage}%");" aria-valuenow=@tempPercentage aria-valuemin="0" aria-valuemax="100">@Model.Character.TemporaryHitPoints</div>
                   </div>
                 </div>
-                @* <div class="col-lg-4">
-                  <div class="input-group w-100" style="width: 110px;" role="group" aria-label="hp buttons">
-                    <button type="button" class="btn btn-outline-secondary btn-sm"><i class="bi bi-dash-lg"></i></button>
-                    <input type="text" class="form-control form-control-sm text-center" aria-label="Current HP" />
-                    <button type="button" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i></button>
-                  </div>
-                </div> *@
               </div>
               <div class="row mb-3 align-items-center">
-                <div class="col">
+                <div class="col-7">
                   <!-- **** Rest and Conditions Button Group **** -->
                   <div class="btn-group w-100" role="group" aria-label="rest buttons">
-                    <button type="button" class="btn btn-outline-secondary btn" data-bs-toggle="modal" data-bs-target="#RestModal"><!--<i class="bi bi-fire"></i>-->Rest</button>
-                    <button type="button" class="btn btn-outline-secondary btn" data-bs-toggle="modal" data-bs-target="#conditionsModal"><!--<i class="bi bi-bandaid-fill"></i>-->Conditions</button>
-                    <button type="button" class="btn btn-outline-secondary btn" data-bs-toggle="modal" data-bs-target="#defencesModal"><!--<i class="bi bi-shield-fill"></i>-->Defences</button>
-                    <button type="button" class="btn btn-outline-secondary btn" data-bs-toggle="modal" data-bs-target="#HealthModal">Health</Template></button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#RestModal"><!--<i class="bi bi-fire"></i>-->Rest</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#conditionsModal"><!--<i class="bi bi-bandaid-fill"></i>-->Conditions</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#defencesModal"><!--<i class="bi bi-shield-fill"></i>-->Defences</button>
                   </div>
+                </div>
+                <div class="col-5">
+                  <form method="post" asp-route-id="@Model.Character.Id">
+                    <div class="input-group">
+                      <input type="number" class="form-control" min="0" asp-for="HealthAdj" />
+                      <button type="submit" class="btn btn-outline-danger" asp-page-handler="Damage">Damage</button>
+                      <button type="button" class="btn btn-outline-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li><button type="submit" class="dropdown-item" asp-page-handler="Heal">Heal</button></li>
+                        <li><button type="submit" class="dropdown-item" asp-page-handler="TempHP">Temp HP</button></li>
+                      </ul>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>
@@ -75,6 +76,12 @@
               <div class="card w-100 overflow-auto" style="height: 6em;">
                 <div class="card-body overflow-auto text-center">
                   <ul class="list-group list-group-flush">
+                    @if (Model.Character.ExhaustionLevel > 0)
+                    {
+                      <li class="list-group text-muted">
+                        Exauhstion Lvl: @Model.Character.ExhaustionLevel
+                      </li>
+                    }
                     @foreach (var condition in Model.Character.Conditions)
                     {
                     <li class="list-group text-muted">
@@ -88,7 +95,6 @@
           </div>
         </div>
       </div>
-        @* </div> *@
     </div>
 
     <!-- **** AC, Initiative, Speed, and Proficiency **** -->
@@ -102,7 +108,7 @@
                   <small class="card-subtitle mb-2 text-muted">AC</small>
                 </div>
                 <div class="card-body py-2 px-1">
-                  <h4 class="card-subtitle mb-2 text-muted">13</h4>
+                  <h4 class="card-subtitle mb-2 text-muted">@Model.ArmorClass</h4>
                 </div>
               </div>
             </div>
@@ -147,13 +153,61 @@
 
   <!-- **** Body Card **** -->
   <div class="card">
+    <!-- **** Card Header with Nav Tabs **** -->
+    <div class="card-header">
+      <ul class="nav nav-tabs card-header-tabs" role="tablist">
+        <li class="nav-item active">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#abilities" role="tab">Abilities</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link disabled" data-bs-toggle="tab" data-bs-target="#actions" role="tab">Actions</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link disabled" data-bs-toggle="tab" data-bs-target="#inventory" role="tab">Inventory</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link disabled" data-bs-toggle="tab" data-bs-target="#features" role="tab">Features</button>
+        </li>
+        <li class="nav-item"></li>
+          <button class="nav-link disabled" data-bs-toggle="tab" data-bs-target="#background" role="tab">Background</button>
+        </li>
+        <li class="nav-item"></li>
+          <button class="nav-link disabled" data-bs-toggle="tab" data-bs-target="#notes" role="tab">Notes</button>
+        </li>
+      </ul>
+    </div>
+    <!-- **** Card Body with Tab Content **** -->
     <div class="card-body">
-      Other stuff
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="abilities" role="tabpanel">
+          <div class="row">
+            @foreach (var stat in Model.Character.Stats)
+            {
+              <div class="col-lg-2 col-md-4 col-6 mb-3">
+                <div class="card text-center">
+                  <div class="card-header">
+                    <h6 class="card-subtitle mb-2 text-muted">@stat.Stat.Abbreviation</h6>
+                  </div>
+                  <div class="card-body">
+                    <h4 class="card-subtitle mb-2 text-muted">@(stat.Modifier >= 0 ? "+" : "")@stat.Modifier</h4>
+                  </div>
+                  <div class="card-footer">
+                    <p class="card-text text-muted">@stat.Value</p>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   </div>
 </div>
+
+
+
 
 
 <!-- **** Modal for Rest Actions **** -->
@@ -184,28 +238,32 @@
       </div>
       <div class="modal-body">
         <!-- **** Conditions content **** -->
-        <ul class="list-group list-group-flush">
-          @foreach (var condition in Model.AllConditions)
-          {
-            bool isChecked = Model.Character.Conditions.Any(c => c.ConditionId == condition.Id);
-            <li class="list-group-item">
-              <div class="form-check form-switch">
-                @if (isChecked)
+        <form id="conditionsForm" method="post" asp-page-handler="ToggleCondition" asp-route-id="@Model.Character.Id">
+          <ul class="list-group list-group-flush">
+            @foreach (var condition in Model.AllConditions)
+            {
+              bool isChecked = Model.Character.Conditions.Any(c => c.ConditionId == condition.Id);
+              <li class="list-group-item">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="SelectedConditionIds" value="@condition.Id" id="cond_@condition.Id" checked="@isChecked" />
+                    <label class="form-check-label" for="cond_@condition.Id">@condition.Name</label>
+                  </div>
+              </li>
+            }
+            <li class="list-group-item text-muted">
+              <span class="text-muted">Exhaustion: </span>
+              <div class="btn-group w-100" role="group" aria-label="exhaustion radio toggle button group">
+                <input type="radio" class="btn-check" name="exhaustionLevel" id="exhaustion0" value="0" autocomplete="off" checked="@(Model.Character.ExhaustionLevel == 0)" />
+                <label class="btn btn-outline-secondary" for="exhaustion0">--</label>
+                @for (int i = 1; i <= 6; i++)
                 {
-                  <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked>
+                  <input type="radio" class="btn-check" name="exhaustionLevel" id="@($"exhaustion{i}")" value="@i" autocomplete="off" checked="@(Model.Character.ExhaustionLevel == i)" />
+                  <label class="btn btn-outline-secondary" for="@($"exhaustion{i}")">@i</label>
                 }
-                else
-                {
-                  <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
-                }
-                <label class="form-check-label" for="flexSwitchCheckDefault">@condition.Name</label>
               </div>
             </li>
-          }
-        </ul>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
+          </ul>
+        </form>
       </div>
     </div>
   </div>
@@ -284,20 +342,19 @@
 </div>
 
 
-<!-- **** Modal for Rest Actions **** -->
-<div class="modal fade" id="HealthModal" tabindex="-1" aria-labelledby="HealthModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="HealthModalLabel">Health Managaer</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <!-- **** Conditions content **** -->
-        <p>
-          Health and Damage options will appear here.
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
+
+
+@section Scripts
+{
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      var conditionsModal = document.getElementById("conditionsModal");
+      var form = document.getElementById("conditionsForm");
+      if (!conditionsModal && !form) return;
+
+      conditionsModal.addEventListener("hidden.bs.modal", function (event) {
+        document.getElementById("conditionsForm").submit();
+      });
+    });
+  </script>
+}

@@ -19,6 +19,16 @@ public class CharacterModel : PageModel
 
     public Character Character { get; set; } = default!;
     public List<Condition> AllConditions { get; set; } = new();
+    public int ArmorClass => CalcArmorClass();
+
+    [BindProperty]
+    public int HealthAdj { get; set; }
+
+    [BindProperty]
+    public List<int> SelectedConditionIds { get; set; } = default!;
+
+    [BindProperty]
+    public int ExhaustionLevel { get; set; } = 0;
 
 
     // TEMPORARY LISTS *****************
@@ -62,5 +72,134 @@ public class CharacterModel : PageModel
         return Page();
     }
 
-    
+    // **************** APPLY DAMAGE ****************
+    public async Task<IActionResult> OnPostDamageAsync(int? id)
+    {
+        // Validate the ID
+        if (id == null) { return NotFound(); }
+
+        // Find the character by ID
+        var character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == id);
+        if (character == null) { return NotFound(); }
+
+
+        // Adjust the character's health
+        if (character.TemporaryHitPoints > 0)
+        {
+            if (HealthAdj >= character.TemporaryHitPoints)
+            {
+                // If the damage is greater than or equal to temporary hit points, remove them
+                HealthAdj -= character.TemporaryHitPoints;
+                character.TemporaryHitPoints = 0;
+            }
+            else
+            {
+                // Otherwise, just reduce the temporary hit points
+                character.TemporaryHitPoints -= HealthAdj;
+                HealthAdj = 0; // No more damage to apply
+            }
+            character.CurrentHitPoints = Math.Max(0, character.CurrentHitPoints - HealthAdj);
+        }
+        else
+        {
+            // Otherwise, reduce the current hit points
+            character.CurrentHitPoints = Math.Max(0, character.CurrentHitPoints - HealthAdj);
+        }
+
+        // Update the character in the database
+        _context.Characters.Update(character);
+        await _context.SaveChangesAsync();
+
+        // Redirect to the character page
+        return RedirectToPage(new { id = character.Id });
+    }
+
+    // **************** APPLY HEALING ****************
+    public async Task<IActionResult> OnPostHealAsync(int? id)
+    {
+        // Validate the ID
+        if (id == null) { return NotFound(); }
+
+        // Find the character by ID
+        var character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == id);
+        if (character == null) { return NotFound(); }
+
+        // Adjust the character's health
+        character.CurrentHitPoints = Math.Min(character.HitPoints, character.CurrentHitPoints + HealthAdj);
+
+        // Update the character in the database
+        _context.Characters.Update(character);
+        await _context.SaveChangesAsync();
+
+        // Redirect to the character page
+        return RedirectToPage(new { id = character.Id });
+    }
+
+    // **************** ADJUST TEMPORARY HIT POINTS ****************
+    public async Task<IActionResult> OnPostTempHPAsync(int? id)
+    {
+        // Validate the ID
+        if (id == null) { return NotFound(); }
+
+        // Find the character by ID
+        var character = await _context.Characters.FirstOrDefaultAsync(character => character.Id == id);
+        if (character == null) { return NotFound(); }
+
+        // Adjust the character's temporary hit points
+        character.TemporaryHitPoints = Math.Max(character.TemporaryHitPoints, HealthAdj);
+
+        // Update the character in the database
+        _context.Characters.Update(character);
+        await _context.SaveChangesAsync();
+
+        // Redirect to the character page
+        return RedirectToPage(new { id = character.Id });
+    }
+
+    // **************** TOGGLE CONDITIONS ****************
+    public async Task<IActionResult> OnPostToggleConditionAsync(int? id)
+    {
+        // Validate Ids
+        if (id == null) { return NotFound(); }
+        Console.WriteLine($"SelectedConditionIds: {string.Join(", ", SelectedConditionIds)}");
+
+        // Find the character by ID
+        var character = await _context.Characters
+            .Include(c => c.Conditions)
+            .FirstOrDefaultAsync(c => c.Id == id);
+        if (character == null) { return NotFound(); }
+
+        // Clear existing conditions
+        var existingConditions = _context.CharacterConditions
+            .Where(charCondition => charCondition.CharacterId == character.Id);
+        _context.CharacterConditions.RemoveRange(existingConditions);
+
+        // Add selected conditions
+        var toAdd = SelectedConditionIds
+            .Select(condId => new CharacterCondition
+            {
+                CharacterId = character.Id,
+                ConditionId = condId
+            });
+        _context.CharacterConditions.AddRange(toAdd);
+
+        character.ExhaustionLevel = ExhaustionLevel;
+        _context.Characters.Update(character);
+
+        await _context.SaveChangesAsync();
+
+        // Redirect to the character page
+        return RedirectToPage(new { id = character.Id });
+    }
+
+
+    // Private helper methods
+    private int CalcArmorClass()
+    {
+        var dexStat = Character.Stats.FirstOrDefault(stat => stat.Stat.Abbreviation == "Dex");
+        int dex = dexStat?.Modifier ?? 0;
+
+
+        return 10 + dex; // Base AC + Dex modifier
+    }
 }
