@@ -25,6 +25,9 @@ public class CharacterModel : PageModel
     public int HealthAdj { get; set; }
 
     [BindProperty]
+    public Dictionary<int, int> UsedHitDiceCounts { get; set; } = new();
+
+    [BindProperty]
     public List<int> SelectedConditionIds { get; set; } = default!;
 
     [BindProperty]
@@ -147,6 +150,72 @@ public class CharacterModel : PageModel
 
         // Adjust the character's temporary hit points
         character.TemporaryHitPoints = Math.Max(character.TemporaryHitPoints, HealthAdj);
+
+        // Update the character in the database
+        _context.Characters.Update(character);
+        await _context.SaveChangesAsync();
+
+        // Redirect to the character page
+        return RedirectToPage(new { id = character.Id });
+    }
+
+    // ***************** SHORT REST ****************
+    public async Task<IActionResult> OnPostShortRestAsync(int? id)
+    {
+        // Validate the ID
+        Console.WriteLine("In OnPostShortRestAsync");
+        if (id == null) { return NotFound(); }
+
+        Console.WriteLine($"UsedHitDiceCounts: {string.Join(", ", UsedHitDiceCounts.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}");
+
+        // Find the Character by ID
+        var character = await _context.Characters
+            .Include(c => c.CharacterClasses)
+            .FirstOrDefaultAsync(c => c.Id == id);
+        if (character == null) { return NotFound(); }
+
+        character.TemporaryHitPoints = 0; // Reset temporary hit points
+
+        // Update the character's used hit dice counts
+        if (UsedHitDiceCounts != null)
+        {
+            foreach (var count in UsedHitDiceCounts)
+            {
+                var charClass = character.CharacterClasses
+                    .FirstOrDefault(charClass => charClass.Id == count.Key);
+
+                if (charClass != null)
+                {
+                    charClass.UsedHitDice = count.Value;
+                }
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        return RedirectToPage(new { id = character.Id });
+    }
+
+    // ***************** LONG REST ****************
+    public async Task<IActionResult> OnPostLongRestAsync(int? id)
+    {
+        // Validate the ID
+        if (id == null) { return NotFound(); }
+
+        // Find the character by ID
+        var character = await _context.Characters
+            .Include(c => c.CharacterClasses)
+            .FirstOrDefaultAsync(c => c.Id == id);
+        if (character == null) { return NotFound(); }
+
+        // Reset used hit dice counts and restore health
+        foreach (var charClass in character.CharacterClasses)
+        {
+            charClass.UsedHitDice = 0; // Reset used hit dice
+        }
+
+        character.CurrentHitPoints = character.HitPoints; // Restore health to max
+        character.TemporaryHitPoints = 0; // Reset temporary hit points
+        character.ExhaustionLevel = Math.Max(0, character.ExhaustionLevel - 1); // Reduce exhaustion level
 
         // Update the character in the database
         _context.Characters.Update(character);

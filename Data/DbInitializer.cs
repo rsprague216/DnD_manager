@@ -6,7 +6,7 @@ public static class DbInitializer
 {
     public static void Initialize(CharacterContext context)
     {
-        context.Database.EnsureDeleted();  // Drop the database if it exists
+        // context.Database.EnsureDeleted();  // Drop the database if it exists
         context.Database.EnsureCreated();  // Create the database if it doesn't exist
 
         if (context.Characters.Any()) { return; } // DB has been seeded
@@ -417,7 +417,8 @@ public static class DbInitializer
             // Hendrik
             new CharacterClass { CharacterId = characters[2].Id, ClassId = classes[4].Id, Level = 4 },
             // Baziros
-            new CharacterClass { CharacterId = characters[3].Id, ClassId = classes[5].Id, Level = 5 },
+            new CharacterClass { CharacterId = characters[3].Id, ClassId = classes[5].Id, Level = 5, UsedHitDice = 2 },
+            new CharacterClass { CharacterId = characters[3].Id, ClassId = classes[2].Id, Level = 2, UsedHitDice = 1 },
             // Sir Reginald
             new CharacterClass { CharacterId = characters[4].Id, ClassId = classes[6].Id, Level = 1 },
             new CharacterClass { CharacterId = characters[4].Id, ClassId = classes[9].Id, Level = 1 },

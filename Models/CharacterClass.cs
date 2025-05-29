@@ -15,6 +15,8 @@ public class CharacterClass
 
     public int Level { get; set; } = 1;
 
+    public int UsedHitDice { get; set; } = 0;
+
     // Navigation properties
     public Character Character { get; set; } = null!;
     public Class Class { get; set; } = null!;

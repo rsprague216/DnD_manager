@@ -27,7 +27,19 @@
               </div>
             </div>
             <div class="col-2">
-              <button type="button" class="btn btn-outline-secondary btn-sm border-0 float-end" data-bs-toggle="modal" data-bs-target="#editCharacterModal"><i class="bi bi-gear-fill"></i></button>
+              <div class="btn-group dropstart float-end">
+                <button type="button" class="btn btn-outline-secondary btn-sm border-0 rounded" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="bi bi-gear-fill"></i>
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" asp-page="" asp-route-id="@Model.Character.Id">Level Up</a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" asp-page="" asp-route-id="@Model.Character.Id">Edit Character</a>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
@@ -60,7 +72,7 @@
                 <div class="col-5">
                   <form method="post" asp-route-id="@Model.Character.Id">
                     <div class="input-group">
-                      <input type="number" class="form-control" min="0" asp-for="HealthAdj" />
+                      <input type="number" class="form-control" min="0" asp-for="HealthAdj" onfocus="this.select()" />
                       <button type="submit" class="btn btn-outline-danger" asp-page-handler="Damage">Damage</button>
                       <button type="button" class="btn btn-outline-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false"></button>
                       <ul class="dropdown-menu dropdown-menu-end">
@@ -79,7 +91,7 @@
                     @if (Model.Character.ExhaustionLevel > 0)
                     {
                       <li class="list-group text-muted">
-                        Exauhstion Lvl: @Model.Character.ExhaustionLevel
+                        Exhaustion Lvl: @Model.Character.ExhaustionLevel
                       </li>
                     }
                     @foreach (var condition in Model.Character.Conditions)
@@ -212,33 +224,85 @@
 
 <!-- **** Modal for Rest Actions **** -->
 <div class="modal fade" id="RestModal" tabindex="-1" aria-labelledby="RestModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="RestModalLabel">Rest</h5>
+        <ul class="nav nav-pills modal-header-pills">
+          <li class="nav-item">
+            <button class="nav-link active" id="shortRestTab" data-bs-toggle="pill" data-bs-target="#shortRestContent" type="button">Short Rest</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="longRestTab" data-bs-toggle="pill" data-bs-target="#longRestContent" type="button">Long Rest</button>
+          </li>
+        </ul>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <!-- **** Conditions content **** -->
-        <p>
-          Long and Short Rest options will appear here.
-        </p>
+        <div class="tab-content">
+
+          <!-- **** Short Rest Content **** -->
+          <div class="tab-pane fade show active" id="shortRestContent">
+            <p class="text-muted">
+              A short rest is a period of downtime, at least 1 hour long, during which a character does nothing more strenuous than eating, drinking, reading, and tending to wounds.
+            </p>
+            <form method="post" id="shortRestForm" asp-page-handler="ShortRest" asp-route-id="@Model.Character.Id">
+              @{
+                int conMod = Model.Character.Stats.First(s => s.Stat.Abbreviation == "Con").Modifier;
+                string symbol = conMod < 0 ? "" : "+";
+              }
+              <h5>Recover</h5>
+              <ul class="list-group list-group-flush">
+                @foreach (var charClass in Model.Character.CharacterClasses)
+                {
+                  <li class="list-group-item">
+                    <h6>@charClass.Class.Name @($"(Hit Dice: {charClass.Level - charClass.UsedHitDice} d{charClass.Class.HitDie}{symbol}{conMod})")</h6>
+                    <div class="hit-dice-group" data-class="@charClass.Id">
+                      @for (int i = 0; i < charClass.Level; i++)
+                      {
+                        <div class="form-check form-check-inline me-0 ms-0">
+                          <input class="form-check-input border border-dark" type="checkbox" id="@($"hitDie_{i}")" value="@i" checked="@(i < charClass.UsedHitDice)" autocomplete="off" />
+                        </div>
+                      }
+                      <input type="hidden" name="UsedHitDiceCounts[@charClass.Id]" id="hitDiceCount_@charClass.Id" value="0" />
+                    </div>
+                  </li>
+                }
+              </ul>
+              <button type="submit" class="btn btn-primary">Take Rest</button>
+            </form>
+          </div>
+
+          <!-- **** Long Rest Content **** -->
+          <div class="tab-pane fade" id="longRestContent">
+            <p class="text-muted">
+              A long rest is a period of extended downtime, at least 8 hours long, during which a character sleeps for at least 6 hours and performs no more than 2 hours of light activity, such as reading, talking, eating, or standing watch.
+            </p>
+            <p class="text-muted">
+              If the rest is interrupted by a period of strenuous activity — at least 1 hour of walking, fighting, casting spells, or similar adventuring activity — the characters must begin the rest again to gain any benefit from it.
+            </p>
+            <form method="post" asp-page-handler="LongRest" asp-route-id="@Model.Character.Id">
+              <button type="submit" class="btn btn-primary">Take Rest</button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <!-- **** Modal for Character Conditions List **** -->
-<div class="modal fade" id="conditionsModal" tabindex="-1" aria-labelledby="conditionsModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="conditionsModalLabel">Conditions</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <!-- **** Conditions content **** -->
-        <form id="conditionsForm" method="post" asp-page-handler="ToggleCondition" asp-route-id="@Model.Character.Id">
+<form id="conditionsForm" method="post" asp-page-handler="ToggleCondition" asp-route-id="@Model.Character.Id">
+  <div class="modal fade" id="conditionsModal" tabindex="-1" aria-labelledby="conditionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="conditionsModalLabel">Conditions</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- **** Conditions content **** -->
+          
           <ul class="list-group list-group-flush">
             @foreach (var condition in Model.AllConditions)
             {
@@ -250,24 +314,26 @@
                   </div>
               </li>
             }
-            <li class="list-group-item text-muted">
-              <span class="text-muted">Exhaustion: </span>
-              <div class="btn-group w-100" role="group" aria-label="exhaustion radio toggle button group">
-                <input type="radio" class="btn-check" name="exhaustionLevel" id="exhaustion0" value="0" autocomplete="off" checked="@(Model.Character.ExhaustionLevel == 0)" />
-                <label class="btn btn-outline-secondary" for="exhaustion0">--</label>
-                @for (int i = 1; i <= 6; i++)
-                {
-                  <input type="radio" class="btn-check" name="exhaustionLevel" id="@($"exhaustion{i}")" value="@i" autocomplete="off" checked="@(Model.Character.ExhaustionLevel == i)" />
-                  <label class="btn btn-outline-secondary" for="@($"exhaustion{i}")">@i</label>
-                }
-              </div>
-            </li>
           </ul>
-        </form>
+        </div>
+        <div class="modal-footer">
+          <div class="w-100">
+            <span class="text-muted float-start">Exhaustion: </span>
+          </div>
+          <div class="btn-group w-100" role="group" aria-label="exhaustion radio toggle button group">
+            <input type="radio" class="btn-check" name="exhaustionLevel" id="exhaustion0" value="0" autocomplete="off" checked="@(Model.Character.ExhaustionLevel == 0)" />
+            <label class="btn btn-outline-secondary" for="exhaustion0">--</label>
+            @for (int i = 1; i <= 6; i++)
+            {
+              <input type="radio" class="btn-check" name="exhaustionLevel" id="@($"exhaustion{i}")" value="@i" autocomplete="off" checked="@(Model.Character.ExhaustionLevel == i)" />
+              <label class="btn btn-outline-secondary" for="@($"exhaustion{i}")">@i</label>
+            }
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
+</form>
 
 <!-- **** Modal for Character Defences **** -->
 <div class="modal fade" id="defencesModal" tabindex="-1" aria-labelledby="defencesModalLabel" aria-hidden="true">
@@ -356,5 +422,45 @@
         document.getElementById("conditionsForm").submit();
       });
     });
+
+    document.getElementById("shortRestForm").addEventListener('submit', function (event) {
+      document.querySelectorAll(".hit-dice-group").forEach(group => {
+        var classId = group.dataset.class;
+        var count = group.querySelectorAll("input:checked").length;
+        document.getElementById(`hitDiceCount_${classId}`).value = count;
+      });
+    });
+
+    document.querySelectorAll('.hit-dice-group').forEach(group => {
+      group.addEventListener('click', function(e) {
+        // only care about clicks on the checkboxes themselves
+        if (!e.target.matches('input[type="checkbox"]')) return;
+
+        // collect all the checkboxes in this group, in document order
+        const boxes = Array.from(group.querySelectorAll('input[type="checkbox"]'));
+        var checkedBoxesCount = boxes.filter(cb => cb.checked).length;
+        const wasChecked = e.target.checked;
+
+        // console.log(`${boxes.length} boxes, ${checkedBoxesCount} checked, wasChecked: ${wasChecked}`);
+        
+        // uncheck all boxes
+        boxes.forEach(cb => cb.checked = false);
+
+        // check boxes up to checkedBoxesCount
+        for (let i = 0; i < checkedBoxesCount; i++) {
+          boxes[i].checked = true;
+        }
+      });
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+      var RestModal = document.getElementById("RestModal");
+      if (!RestModal) return;
+
+      RestModal.addEventListener("hidden.bs.modal", function (event) {
+        window.location.reload();
+      });
+    });
+    
   </script>
 }
