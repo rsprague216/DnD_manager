@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DnD_Manager")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+03270c3a033045f1e2be79d9126be64970ff22d7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e9e0923ad2bb05f8e046b09983a3349ad5d92091")]
 [assembly: System.Reflection.AssemblyProductAttribute("DnD_Manager")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DnD_Manager")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

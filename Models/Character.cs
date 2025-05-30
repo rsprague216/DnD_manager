@@ -21,6 +21,8 @@ public class Character
     public int CurrentHitPoints { get; set; } = 0;
     public int TemporaryHitPoints { get; set; } = 0;
 
+    public int Level { get; set; } = 1;
+
     [Range(0, 6)]
     public int ExhaustionLevel { get; set; } = 0;
 
@@ -30,4 +32,5 @@ public class Character
     public Subrace? Subrace { get; set; }
     public ICollection<CharacterClass> CharacterClasses { get; set; } = null!;
     public ICollection<CharacterCondition> Conditions { get; set; } = null!;
+    public ICollection<CharacterSkill> Skills { get; set; } = null!;
 }

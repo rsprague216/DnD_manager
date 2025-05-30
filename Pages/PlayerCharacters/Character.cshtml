@@ -86,19 +86,29 @@
             </div>
             <div class="col-lg-4 flex-shrink-0">
               <div class="card w-100 overflow-auto" style="height: 6em;">
-                <div class="card-body overflow-auto text-center">
+                <div class="card-body overflow-auto">
                   <ul class="list-group list-group-flush">
                     @if (Model.Character.ExhaustionLevel > 0)
                     {
-                      <li class="list-group text-muted">
+                      <li class="list-group text-muted text-center">
                         Exhaustion Lvl: @Model.Character.ExhaustionLevel
                       </li>
                     }
                     @foreach (var condition in Model.Character.Conditions)
                     {
-                    <li class="list-group text-muted">
-                        @condition.Condition.Name
+                    <li class="list-group text-muted text-center">
+                        <a class="text-reset text-decoration-none" data-bs-toggle="offcanvas" href="#conditionOffCanvas_@condition.Id" role="button" aria-controls="conditionOffCanvas">@condition.Condition.Name</a>
                     </li>
+                    <!-- **** Offcanvas for condition descriptions **** -->
+                    <div class="offcanvas offcanvas-end" tabindex="-1" id="conditionOffCanvas_@condition.Id" aria-labelledby="conditionOffCanvasLabel">
+                      <div class="offcanvas-header">
+                        <h5 class="offcanvas-title" id="conditionOffCanvasLabel">@condition.Condition.Name</h5>
+                        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                      </div>
+                      <div class="offcanvas-body">
+                        <p class="text-muted">@condition.Condition.Description</p>
+                      </div>
+                    </div>
                     }
                   </ul>
                 </div>
@@ -131,7 +141,7 @@
                   <small class="card-subtitle mb-2 text-muted">Init</small>
                 </div>
                 <div class="card-body py-2 px-1">
-                  <h4 class="card-subtitle mb-2 text-muted">+5</h4>
+                  <h4 class="card-subtitle mb-2 text-muted">@(Model.Initiative < 0 ? "" : "+")@Model.Initiative</h4>
                 </div>
               </div>
             </div>
@@ -142,7 +152,7 @@
                   <small class="card-subtitle mb-2 text-muted">Speed</small>
                 </div>
                 <div class="card-body py-2 px-1">
-                  <h4 class="card-subtitle mb-2 text-muted">30 ft</h4>
+                  <h4 class="card-subtitle mb-2 text-muted">@Model.Speed ft</h4>
                 </div>
               </div>
             </div>
@@ -153,7 +163,7 @@
                   <small class="card-subtitle mb-2 text-muted">Prof</small>
                 </div>
                 <div class="card-body py-2 px-1">
-                  <h4 class="card-subtitle mb-2 text-muted">+2</h4>
+                  <h4 class="card-subtitle mb-2 text-muted">+@Model.ProficiencyBonus</h4>
                 </div>
               </div>
             </div>
@@ -198,7 +208,7 @@
               <div class="col-lg-2 col-md-4 col-6 mb-3">
                 <div class="card text-center">
                   <div class="card-header">
-                    <h6 class="card-subtitle mb-2 text-muted">@stat.Stat.Abbreviation</h6>
+                    <h6 class="card-subtitle mb-2 text-muted">@stat.Stat.Abbreviation.ToUpper()</h6>
                   </div>
                   <div class="card-body">
                     <h4 class="card-subtitle mb-2 text-muted">@(stat.Modifier >= 0 ? "+" : "")@stat.Modifier</h4>
@@ -209,6 +219,60 @@
                 </div>
               </div>
             }
+          </div>
+
+          <div class="row">
+            <div class="col-lg-4 col-md-6">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="card-title">Skills</h5>
+                </div>
+                <div class="card-body">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item border-0 mb-0 text-muted small d-flex align-items-center">
+                      <span style="flex:0 0 15%">Prof</span>
+                      <span style="flex:0 0 15%">Mod</span>
+                      <span style="flex:1 0 auto">Skill</span>
+                      <span class="float-end" style="flex:0 0 10%">Bonus</span>
+                    </li>
+                    @foreach (var skill in Model.Character.Skills)
+                    {
+                      int statModifier = Model.Character.Stats.Single(stat => stat.Stat.Id == skill.Skill.StatId).Modifier + Model.ProficiencyBonus * skill.Proficiency;
+                        <li class="list-group-item @(skill.Skill.Name == "Survival" ? "border-0": "") d-flex">
+                          <span style="flex:0 0 15%">
+                            @if (skill.Proficiency == 0)
+                            {
+                              <i class="bi bi-circle"></i>
+                            }
+                            else if (skill.Proficiency == 1)
+                            {
+                              <i class="bi bi-circle-fill"></i>
+                            }
+                            else if (skill.Proficiency == 2)
+                            {
+                              <i class="bi bi-record-circle-fill"></i>
+                            }
+                          </span>
+                          <span class="text-muted small" style="flex:0 0 15%">@skill.Skill.Stat.Abbreviation</span>
+                          <span class="small" style="flex:1 0 auto"><a class="text-reset text-decoration-none" data-bs-toggle="offcanvas" href="#skillOffCanvas_@skill.SkillId" role="button" aria-controls="skillOffCanvas">@skill.Skill.Name</a></span>
+                        <span class="border border-secondary rounded text-center small" style="flex:0 0 10%">@(statModifier < 0 ? "" : "+")@statModifier</span>
+                      </li>
+
+                      <!-- **** Offcanvas for Skills **** -->
+                      <div class="offcanvas offcanvas-end" tabindex="-1" id="skillOffCanvas_@skill.SkillId" aria-labelledby="skillOffCanvasLabel">
+                        <div class="offcanvas-header">
+                          <h5 class="offcanvas-title" id="skillOffCanvasLabel">@skill.Skill.Name</h5>
+                        </div>
+                        <div class="offcanvas-body">
+                          <!-- **** Skill details content goes here **** -->
+                          <p>@skill.Skill.Description</p>
+                        </div>
+                      </div>
+                    }
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -257,7 +321,9 @@
                 {
                   <li class="list-group-item">
                     <h6>@charClass.Class.Name @($"(Hit Dice: {charClass.Level - charClass.UsedHitDice} d{charClass.Class.HitDie}{symbol}{conMod})")</h6>
+                    
                     <div class="hit-dice-group" data-class="@charClass.Id">
+                      <input type="hidden" name="init-hit-die-count" class="init-hit-die-count" value="@charClass.UsedHitDice" />
                       @for (int i = 0; i < charClass.Level; i++)
                       {
                         <div class="form-check form-check-inline me-0 ms-0">
@@ -302,7 +368,6 @@
         </div>
         <div class="modal-body">
           <!-- **** Conditions content **** -->
-          
           <ul class="list-group list-group-flush">
             @foreach (var condition in Model.AllConditions)
             {
@@ -410,6 +475,9 @@
 
 
 
+
+
+
 @section Scripts
 {
   <script>
@@ -458,7 +526,18 @@
       if (!RestModal) return;
 
       RestModal.addEventListener("hidden.bs.modal", function (event) {
-        window.location.reload();
+        @* window.location.reload(); *@
+
+        document.querySelectorAll('.hit-dice-group').forEach(group => {
+          const boxes = Array.from(group.querySelectorAll('input[type="checkbox"]'));
+          boxes.forEach(cb => cb.checked = false);
+          var hidden = group.querySelector('input.init-hit-die-count');
+          var UsedHitDiceCount = parseInt(hidden.value, 10) || 0;
+
+          for (let i = 0; i < UsedHitDiceCount; i++) {
+            boxes[i].checked = true;
+          }
+        });
       });
     });
     

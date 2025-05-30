@@ -9,8 +9,12 @@ public class Skill
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "Skill name is required.")]
     public string Name { get; set; } = string.Empty;
 
-    
+    public string Description { get; set; } = string.Empty;
+
+    public int StatId { get; set; }
+
+    public Stat Stat { get; set; } = default!;
+
 }

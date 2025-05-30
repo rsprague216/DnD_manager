@@ -6,7 +6,7 @@ public static class DbInitializer
 {
     public static void Initialize(CharacterContext context)
     {
-        // context.Database.EnsureDeleted();  // Drop the database if it exists
+        context.Database.EnsureDeleted();  // Drop the database if it exists
         context.Database.EnsureCreated();  // Create the database if it doesn't exist
 
         if (context.Characters.Any()) { return; } // DB has been seeded
@@ -241,6 +241,121 @@ public static class DbInitializer
         context.Stats.AddRange(stats);
         context.SaveChanges();
 
+        // ********************************************* SEEDING SKILL DATA  *********************************************
+        var skills = new Skill[]
+        {
+            new Skill
+            {
+                Name = "Acrobatics",
+                Description = "A measure of your character's agility and balance.",
+                StatId = stats[1].Id // Dexterity
+            },
+            new Skill
+            {
+                Name = "Animal Handling",
+                Description = "A measure of your character's ability to handle animals.",
+                StatId = stats[4].Id // Wisdom
+            },
+            new Skill
+            {
+                Name = "Arcana",
+                Description = "A measure of your character's knowledge of magic and the arcane.",
+                StatId = stats[3].Id // Intelligence
+            },
+            new Skill
+            {
+                Name = "Athletics",
+                Description = "A measure of your character's physical prowess in climbing, jumping, and swimming.",
+                StatId = stats[0].Id // Strength
+            },
+            new Skill
+            {
+                Name = "Deception",
+                Description = "A measure of your character's ability to deceive others.",
+                StatId = stats[5].Id // Charisma
+            },
+            new Skill
+            {
+                Name = "History",
+                Description = "A measure of your character's knowledge of past events and lore.",
+                StatId = stats[3].Id // Intelligence
+            },
+            new Skill
+            {
+                Name = "Insight",
+                Description = "A measure of your character's ability to read people and situations.",
+                StatId = stats[4].Id // Wisdom
+            },
+            new Skill
+            {
+                Name = "Intimidation",
+                Description = "A measure of your character's ability to coerce or frighten others.",
+                StatId = stats[5].Id // Charisma
+            },
+            new Skill
+            {
+                Name = "Investigation",
+                Description = "A measure of your character's ability to search for clues and solve puzzles.",
+                StatId = stats[3].Id // Intelligence
+            },
+            new Skill
+            {
+                Name = "Medicine",
+                Description = "A measure of your character's ability to heal wounds and diagnose ailments.",
+                StatId = stats[4].Id // Wisdom
+            },
+            new Skill
+            {
+                Name = "Nature",
+                Description = "A measure of your character's knowledge of the natural world.",
+                StatId = stats[3].Id // Intelligence
+            },
+            new Skill
+            {
+                Name = "Perception",
+                Description = "A measure of your character's awareness of their surroundings.",
+                StatId = stats[4].Id // Wisdom
+            },
+            new Skill
+            {
+                Name = "Performance",
+                Description = "A measure of your character's ability to entertain others.",
+                StatId = stats[5].Id // Charisma
+            },
+            new Skill
+            {
+                Name = "Persuasion",
+                Description = "A measure of your character's ability to influence others through argument or charm.",
+                StatId = stats[5].Id // Charisma
+            },
+            new Skill
+            {
+                Name = "Religion",
+                Description = "A measure of your character's knowledge of religious lore and practices.",
+                StatId = stats[3].Id // Intelligence
+            },
+            new Skill
+            {
+                Name = "Sleight of Hand",
+                Description = "A measure of your character's ability to perform tricks and manipulate objects.",
+                StatId = stats[1].Id // Dexterity
+            },
+            new Skill
+            {
+                Name = "Stealth",
+                Description = "A measure of your character's ability to move silently and avoid detection.",
+                StatId = stats[1].Id // Dexterity
+            },
+            new Skill
+            {
+                Name = "Survival",
+                Description = "A measure of your character's ability to survive in the wilderness.",
+                StatId = stats[4].Id // Wisdom
+            }
+        };
+        context.Skills.AddRange(skills);
+        context.SaveChanges();
+
         // ********************************************* SEEDING CONDITIONS DATA  *********************************************
         var conditions = new Condition[]
         {
@@ -327,7 +442,8 @@ public static class DbInitializer
                 RaceId = races[2].Id,
                 SubraceId = null,
                 HitPoints = 91,
-                CurrentHitPoints = 76
+                CurrentHitPoints = 76,
+                Level = 8
             },
             new Character
             {
@@ -335,7 +451,8 @@ public static class DbInitializer
                 RaceId = races[0].Id,
                 SubraceId = 3,
                 HitPoints = 24,
-                CurrentHitPoints = 13
+                CurrentHitPoints = 13,
+                Level = 3
             },
             new Character
             {
@@ -343,7 +460,8 @@ public static class DbInitializer
                 RaceId = races[0].Id,
                 SubraceId = 3,
                 HitPoints = 39,
-                CurrentHitPoints = 24
+                CurrentHitPoints = 24,
+                Level = 4
             },
             new Character
             {
@@ -351,7 +469,8 @@ public static class DbInitializer
                 RaceId = races[3].Id,
                 SubraceId = null,
                 HitPoints = 60,
-                CurrentHitPoints = 32
+                CurrentHitPoints = 32,
+                Level = 7
             },
             new Character
             {
@@ -359,7 +478,8 @@ public static class DbInitializer
                 RaceId = races[4].Id,
                 SubraceId = null,
                 HitPoints = 110,
-                CurrentHitPoints = 110
+                CurrentHitPoints = 110,
+                Level = 10
             }
         };
         context.Characters.AddRange(characters);
@@ -405,6 +525,108 @@ public static class DbInitializer
             new CharacterStat { CharacterId = characters[4].Id, StatId = stats[5].Id, Value = 20 }
         };
         context.CharacterStats.AddRange(characterStats);
+        context.SaveChanges();
+
+        // ********************************************* SEEDING CHARACTER SKILLS DATA  *********************************************
+        var characterSkills = new CharacterSkill[]
+        {
+            // Lilowyn Shayemar
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[0].Id, Proficiency = 1 }, // Acrobatics
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[1].Id, Proficiency = 0 }, // Animal Handling
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[2].Id, Proficiency = 2 }, // Arcana
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[3].Id, Proficiency = 0 }, // Athletics
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[4].Id, Proficiency = 1 }, // Deception
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[5].Id, Proficiency = 0 }, // History
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[6].Id, Proficiency = 1 }, // Insight
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[7].Id, Proficiency = 0 }, // Intimidation
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[8].Id, Proficiency = 1 }, // Investigation
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[9].Id, Proficiency = 0 }, // Medicine
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[10].Id, Proficiency = 0 }, // Nature
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[11].Id, Proficiency = 2 }, // Perception
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[12].Id, Proficiency = 0 }, // Performance
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[13].Id, Proficiency = 1 }, // Persuasion
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[14].Id, Proficiency = 0 }, // Religion
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[15].Id, Proficiency = 0 }, // Sleight of Hand
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[16].Id, Proficiency = 1 }, // Stealth
+            new CharacterSkill { CharacterId = characters[0].Id, SkillId = skills[17].Id, Proficiency = 0 }, // Survival
+            // Lilith Wavestrider
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[0].Id, Proficiency = 0 }, // Acrobatics
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[1].Id, Proficiency = 1 }, // Animal Handling
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[2].Id, Proficiency = 0 }, // Arcana
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[3].Id, Proficiency = 0 }, // Athletics
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[4].Id, Proficiency = 1 }, // Deception
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[5].Id, Proficiency = 0 }, // History
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[6].Id, Proficiency = 0 }, // Insight
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[7].Id, Proficiency = 0 }, // Intimidation
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[8].Id, Proficiency = 0 }, // Investigation
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[9].Id, Proficiency = 0 }, // Medicine
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[10].Id, Proficiency = 0 }, // Nature
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[11].Id, Proficiency = 2 }, // Perception
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[12].Id, Proficiency = 0 }, // Performance
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[13].Id, Proficiency = 1 }, // Persuasion
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[14].Id, Proficiency = 0 }, // Religion
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[15].Id, Proficiency = 0 }, // Sleight of Hand
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[16].Id, Proficiency = 1 }, // Stealth
+            new CharacterSkill { CharacterId = characters[1].Id, SkillId = skills[17].Id, Proficiency = 0 }, // Survival
+            // Hendrik
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[0].Id, Proficiency = 0 }, // Acrobatics
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[1].Id, Proficiency = 0 }, // Animal Handling
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[2].Id, Proficiency = 0 }, // Arcana
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[3].Id, Proficiency = 1 }, // Athletics
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[4].Id, Proficiency = 0 }, // Deception
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[5].Id, Proficiency = 0 }, // History
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[6].Id, Proficiency = 1 }, // Insight
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[7].Id, Proficiency = 0 }, // Intimidation
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[8].Id, Proficiency = 0 }, // Investigation
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[9].Id, Proficiency = 0 }, // Medicine
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[10].Id, Proficiency = 0 }, // Nature
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[11].Id, Proficiency = 1 }, // Perception
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[12].Id, Proficiency = 0 }, // Performance
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[13].Id, Proficiency = 1 }, // Persuasion
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[14].Id, Proficiency = 0 }, // Religion
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[15].Id, Proficiency = 0 }, // Sleight of Hand
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[16].Id, Proficiency = 1 }, // Stealth
+            new CharacterSkill { CharacterId = characters[2].Id, SkillId = skills[17].Id, Proficiency = 0 }, // Survival
+            // Baziros
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[0].Id, Proficiency = 0 }, // Acrobatics
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[1].Id, Proficiency = 0 }, // Animal Handling
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[2].Id, Proficiency = 0 }, // Arcana
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[3].Id, Proficiency = 1 }, // Athletics
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[4].Id, Proficiency = 0 }, // Deception
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[5].Id, Proficiency = 0 }, // History
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[6].Id, Proficiency = 1 }, // Insight
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[7].Id, Proficiency = 0 }, // Intimidation
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[8].Id, Proficiency = 0 }, // Investigation
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[9].Id, Proficiency = 0 }, // Medicine
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[10].Id, Proficiency = 0 }, // Nature
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[11].Id, Proficiency = 1 }, // Perception
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[12].Id, Proficiency = 0 }, // Performance
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[13].Id, Proficiency = 1 }, // Persuasion
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[14].Id, Proficiency = 0 }, // Religion
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[15].Id, Proficiency = 0 }, // Sleight of Hand
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[16].Id, Proficiency = 1 }, // Stealth
+            new CharacterSkill { CharacterId = characters[3].Id, SkillId = skills[17].Id, Proficiency = 0 }, // Survival
+            // Sir Reginald
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[0].Id, Proficiency = 1 }, // Acrobatics
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[1].Id, Proficiency = 0 }, // Animal Handling
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[2].Id, Proficiency = 0 }, // Arcana
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[3].Id, Proficiency = 1 }, // Athletics
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[4].Id, Proficiency = 1 }, // Deception
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[5].Id, Proficiency = 0 }, // History
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[6].Id, Proficiency = 1 }, // Insight
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[7].Id, Proficiency = 0 }, // Intimidation
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[8].Id, Proficiency = 0 }, // Investigation
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[9].Id, Proficiency = 0 }, // Medicine
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[10].Id, Proficiency = 0 }, // Nature
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[11].Id, Proficiency = 1 }, // Perception
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[12].Id, Proficiency = 0 }, // Performance
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[13].Id, Proficiency = 1 }, // Persuasion
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[14].Id, Proficiency = 0 }, // Religion
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[15].Id, Proficiency = 0 }, // Sleight of Hand
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[16].Id, Proficiency = 1 }, // Stealth
+            new CharacterSkill { CharacterId = characters[4].Id, SkillId = skills[17].Id, Proficiency = 0 }  // Survival
+        };
+        context.CharacterSkills.AddRange(characterSkills);
         context.SaveChanges();
 
         // ********************************************* SEEDING CHARACTER CLASS DATA  *********************************************

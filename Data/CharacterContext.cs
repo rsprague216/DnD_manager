@@ -12,6 +12,8 @@ public class CharacterContext : DbContext
     public DbSet<Subrace> Subraces { get; set; }
     public DbSet<Class> Classes { get; set; }
     public DbSet<CharacterClass> CharacterClasses { get; set; }
+    public DbSet<Skill> Skills { get; set; }
+    public DbSet<CharacterSkill> CharacterSkills { get; set; }
     public DbSet<Condition> Conditions { get; set; }
     public DbSet<CharacterCondition> CharacterConditions { get; set; }
 
@@ -27,6 +29,8 @@ public class CharacterContext : DbContext
         modelBuilder.Entity<Subrace>().ToTable("Subraces");
         modelBuilder.Entity<Class>().ToTable("Classes");
         modelBuilder.Entity<CharacterClass>().ToTable("CharacterClasses");
+        modelBuilder.Entity<Skill>().ToTable("Skills");
+        modelBuilder.Entity<CharacterSkill>().ToTable("CharacterSkills");
         modelBuilder.Entity<Condition>().ToTable("Conditions");
         modelBuilder.Entity<CharacterCondition>().ToTable("CharacterConditions");
     }

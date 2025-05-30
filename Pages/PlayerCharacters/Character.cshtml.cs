@@ -20,6 +20,9 @@ public class CharacterModel : PageModel
     public Character Character { get; set; } = default!;
     public List<Condition> AllConditions { get; set; } = new();
     public int ArmorClass => CalcArmorClass();
+    public int ProficiencyBonus => CalcProficiencyBonus();
+    public int Initiative => CalcInitiative();
+    public int Speed => CalcSpeed();
 
     [BindProperty]
     public int HealthAdj { get; set; }
@@ -64,6 +67,7 @@ public class CharacterModel : PageModel
             .Include(character => character.Stats).ThenInclude(charStat => charStat.Stat)
             .Include(character => character.CharacterClasses).ThenInclude(charClass => charClass.Class)
             .Include(character => character.Conditions).ThenInclude(charCondition => charCondition.Condition)
+            .Include(character => character.Skills).ThenInclude(charSkill => charSkill.Skill)
             .FirstOrDefaultAsync(character => character.Id == id);
 
         if (character == null) { return NotFound(); }
@@ -268,7 +272,26 @@ public class CharacterModel : PageModel
         var dexStat = Character.Stats.FirstOrDefault(stat => stat.Stat.Abbreviation == "Dex");
         int dex = dexStat?.Modifier ?? 0;
 
-
         return 10 + dex; // Base AC + Dex modifier
+    }
+
+    private int CalcProficiencyBonus()
+    {
+        // Proficiency bonus is typically calculated as (level - 1) / 4 + 2
+        return (Character.Level - 1) / 4 + 2;
+    }
+
+    private int CalcInitiative()
+    {
+        var dexStat = Character.Stats.First(stat => stat.Stat.Abbreviation == "Dex");
+        return dexStat.Modifier;
+    }
+
+    private int CalcSpeed()
+    {
+        var raceSpeed = Character.Race.Speed;
+
+        var speed = raceSpeed;
+        return speed;
     }
 }
