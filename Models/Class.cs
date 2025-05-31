@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace DnD_Manager.Models;
 
@@ -20,6 +19,7 @@ public class Class
     [Required(ErrorMessage = "Saving Throws are required.")]
     [MinLength(2, ErrorMessage = "At least two saving throw is required.")]
     public List<string> SavingThrows { get; set; } = new List<string>();
+
     // public Dictionary<string, bool> Skills { get; set; } = new Dictionary<string, bool>();
 
     // public List<string>? Tools { get; set; }

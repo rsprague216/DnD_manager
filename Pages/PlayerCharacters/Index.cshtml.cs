@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MongoDB.Driver;
-using MongoDB.Bson;
 using DnD_Manager.Data;
 using DnD_Manager.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +40,7 @@ public class CharactersModel : PageModel
             .Include(character => character.Stats)
             .Include(character => character.CharacterClasses)
             .Include(character => character.Conditions)
+            .Include(character => character.Skills)
             .FirstOrDefaultAsync(character => character.Id == id);
         
         if (character == null) { return NotFound(); }
@@ -55,6 +55,7 @@ public class CharactersModel : PageModel
             Stats = character.Stats.Select(charStat => new CharacterStat { StatId = charStat.StatId, Value = charStat.Value }).ToList(),
             CharacterClasses = character.CharacterClasses.Select(characterClass => new CharacterClass { ClassId = characterClass.ClassId, Level = characterClass.Level }).ToList(),
             Conditions = character.Conditions.Select(condition => new CharacterCondition { ConditionId = condition.ConditionId }).ToList(),
+            Skills = character.Skills.Select(skill => new CharacterSkill { CharacterId = skill.CharacterId, SkillId = skill.SkillId, Proficiency = skill.Proficiency }).ToList()
         };
 
         _context.Characters.Add(newCharacter);

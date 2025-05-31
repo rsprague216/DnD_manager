@@ -16,7 +16,7 @@ public class CharacterStat
     public int Value { get; set; }
 
     // Dynamic properties
-    public int Modifier => (int)(((double)Value - 10) / 2);
+    public int Modifier => (int)Math.Floor((Value - 10) / 2.0);
 
     // Navigation properties
     public Character Character { get; set; } = null!;

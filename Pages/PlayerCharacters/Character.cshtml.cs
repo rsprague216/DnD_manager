@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using MongoDB.Driver;
 using DnD_Manager.Data;
 using DnD_Manager.Models;
-using MongoDB.Bson;
 using Microsoft.EntityFrameworkCore;
 
 namespace DnD_Manager.Pages.PlayerCharacters;
@@ -19,6 +18,9 @@ public class CharacterModel : PageModel
 
     public Character Character { get; set; } = default!;
     public List<Condition> AllConditions { get; set; } = new();
+
+    public List<string> ProficientSaves { get; set; } = new List<string>();
+
     public int ArmorClass => CalcArmorClass();
     public int ProficiencyBonus => CalcProficiencyBonus();
     public int Initiative => CalcInitiative();
@@ -73,6 +75,8 @@ public class CharacterModel : PageModel
         if (character == null) { return NotFound(); }
 
         Character = character;
+
+        ProficientSaves = Character.CharacterClasses.First().Class.SavingThrows.ToList();
 
         AllConditions = await _context.Conditions.ToListAsync();
 

@@ -205,7 +205,7 @@
           <div class="row">
             @foreach (var stat in Model.Character.Stats)
             {
-              <div class="col-lg-2 col-md-4 col-6 mb-3">
+              <div class="col-lg-2 col-4 mb-3">
                 <div class="card text-center">
                   <div class="card-header">
                     <h6 class="card-subtitle mb-2 text-muted">@stat.Stat.Abbreviation.ToUpper()</h6>
@@ -222,7 +222,7 @@
           </div>
 
           <div class="row">
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-4 col-md-6 mb-3">
               <div class="card">
                 <div class="card-header">
                   <h5 class="card-title">Skills</h5>
@@ -270,6 +270,122 @@
                       </div>
                     }
                   </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="row mb-3">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-header">
+                      <h5 class="card-title">Saving Throws</h5>
+                    </div>
+                    <div class="card-body">
+                      <div class="row">
+
+                        <!-- **** Saving Throws **** -->
+                        @foreach (var stat in Model.Character.Stats)
+                        {
+
+                          int profMultiplier = (Model.ProficientSaves.Contains(stat.Stat.Name) ? 1 : 0);
+                          
+                          <div class="col-lg-2 col-4 mb-3">
+                            <div class="card text-center">
+                              <div class="card-header">
+                                <h6 class="card-subtitle mb-2 text-muted">@stat.Stat.Abbreviation.ToUpper()</h6>
+                              </div>
+                              <div class="card-body">
+                                <h4 class="card-subtitle mb-2 text-muted">@(stat.Modifier >= 0 ? "+" : "")@(stat.Modifier + Model.ProficiencyBonus * profMultiplier) </h4>
+                              </div>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row d-flex align-items-stretch">
+                <div class="col-lg-6 mb-3">
+                  <div class="card h-100">
+                    <div class="card-header">
+                      <h5 class="card-title">Passive Senses</h5>
+                    </div>
+                    <div class="card-body">
+                      @{
+                        var wis = Model.Character.Stats.First(s => s.Stat.Abbreviation == "Wis");
+                        var intStat = Model.Character.Stats.First(s => s.Stat.Abbreviation == "Int");
+
+                        var perception = Model.Character.Skills.First(s => s.Skill.Name == "Perception");
+                        var investigation = Model.Character.Skills.First(s => s.Skill.Name == "Investigation");
+                        var insight = Model.Character.Skills.First(s => s.Skill.Name == "Insight");
+                      }
+                      <div class="card mb-3 overflow-hidden">
+                        <div class="row g-0">
+                          <div class="col-3 bg-body-secondary">
+                            <div class="card-body text-center">
+                              <h5 class="card-title">
+                                @(wis.Modifier + 10 + Model.ProficiencyBonus * perception.Proficiency)
+                              </h5>
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="card-body">
+                              <h5 class="card-title text-muted">Perception</h5>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="card mb-3 overflow-hidden">
+                        <div class="row g-0">
+                          <div class="col-3 bg-body-secondary">
+                            <div class="card-body text-center">
+                              <h5 class="card-title">
+                                @(intStat.Modifier + 10 + Model.ProficiencyBonus * investigation.Proficiency)
+                              </h5>
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="card-body">
+                              <h5 class="card-title text-muted">Investigation</h5>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="card mb-3 overflow-hidden">
+                        <div class="row g-0">
+                          <div class="col-3 bg-body-secondary">
+                            <div class="card-body text-center">
+                              <h5 class="card-title">
+                                @(wis.Modifier + 10 + Model.ProficiencyBonus * insight.Proficiency)
+                              </h5>
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="card-body">
+                              <h5 class="card-title text-muted">Insight</h5>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-6 mb-3">
+                  <div class="card h-100">
+                    <div class="card-header">
+                      <h5 class="card-title">Proficiencies &amp; Training</h5>
+                    </div>
+                    <div class="card-body">
+
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -471,9 +587,6 @@
     </div>
   </div>
 </div>
-
-
-
 
 
 
