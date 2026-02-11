@@ -182,215 +182,56 @@
           <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#abilities" role="tab">Abilities</button>
         </li>
         <li class="nav-item">
-          <button class="nav-link disabled" data-bs-toggle="tab" data-bs-target="#actions" role="tab">Actions</button>
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#actions" role="tab">Actions</button>
         </li>
         <li class="nav-item">
-          <button class="nav-link disabled" data-bs-toggle="tab" data-bs-target="#inventory" role="tab">Inventory</button>
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#inventory" role="tab">Inventory</button>
         </li>
         <li class="nav-item">
-          <button class="nav-link disabled" data-bs-toggle="tab" data-bs-target="#features" role="tab">Features</button>
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#features" role="tab">Features</button>
         </li>
         <li class="nav-item"></li>
-          <button class="nav-link disabled" data-bs-toggle="tab" data-bs-target="#background" role="tab">Background</button>
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#background" role="tab">Background</button>
         </li>
         <li class="nav-item"></li>
-          <button class="nav-link disabled" data-bs-toggle="tab" data-bs-target="#notes" role="tab">Notes</button>
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#notes" role="tab">Notes</button>
         </li>
       </ul>
     </div>
     <!-- **** Card Body with Tab Content **** -->
     <div class="card-body">
       <div class="tab-content">
+
+        <!-- **** Abilities Tab **** -->
         <div class="tab-pane fade show active" id="abilities" role="tabpanel">
-          <div class="row">
-            @foreach (var stat in Model.Character.Stats)
-            {
-              <div class="col-lg-2 col-4 mb-3">
-                <div class="card text-center">
-                  <div class="card-header">
-                    <h6 class="card-subtitle mb-2 text-muted">@stat.Stat.Abbreviation.ToUpper()</h6>
-                  </div>
-                  <div class="card-body">
-                    <h4 class="card-subtitle mb-2 text-muted">@(stat.Modifier >= 0 ? "+" : "")@stat.Modifier</h4>
-                  </div>
-                  <div class="card-footer">
-                    <p class="card-text text-muted">@stat.Value</p>
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
-
-          <div class="row">
-            <div class="col-lg-4 col-md-6 mb-3">
-              <div class="card">
-                <div class="card-header">
-                  <h5 class="card-title">Skills</h5>
-                </div>
-                <div class="card-body">
-                  <ul class="list-group list-group-flush">
-                    <li class="list-group-item border-0 mb-0 text-muted small d-flex align-items-center">
-                      <span style="flex:0 0 15%">Prof</span>
-                      <span style="flex:0 0 15%">Mod</span>
-                      <span style="flex:1 0 auto">Skill</span>
-                      <span class="float-end" style="flex:0 0 10%">Bonus</span>
-                    </li>
-                    @foreach (var skill in Model.Character.Skills)
-                    {
-                      int statModifier = Model.Character.Stats.Single(stat => stat.Stat.Id == skill.Skill.StatId).Modifier + Model.ProficiencyBonus * skill.Proficiency;
-                        <li class="list-group-item @(skill.Skill.Name == "Survival" ? "border-0": "") d-flex">
-                          <span style="flex:0 0 15%">
-                            @if (skill.Proficiency == 0)
-                            {
-                              <i class="bi bi-circle"></i>
-                            }
-                            else if (skill.Proficiency == 1)
-                            {
-                              <i class="bi bi-circle-fill"></i>
-                            }
-                            else if (skill.Proficiency == 2)
-                            {
-                              <i class="bi bi-record-circle-fill"></i>
-                            }
-                          </span>
-                          <span class="text-muted small" style="flex:0 0 15%">@skill.Skill.Stat.Abbreviation</span>
-                          <span class="small" style="flex:1 0 auto"><a class="text-reset text-decoration-none" data-bs-toggle="offcanvas" href="#skillOffCanvas_@skill.SkillId" role="button" aria-controls="skillOffCanvas">@skill.Skill.Name</a></span>
-                        <span class="border border-secondary rounded text-center small" style="flex:0 0 10%">@(statModifier < 0 ? "" : "+")@statModifier</span>
-                      </li>
-
-                      <!-- **** Offcanvas for Skills **** -->
-                      <div class="offcanvas offcanvas-end" tabindex="-1" id="skillOffCanvas_@skill.SkillId" aria-labelledby="skillOffCanvasLabel">
-                        <div class="offcanvas-header">
-                          <h5 class="offcanvas-title" id="skillOffCanvasLabel">@skill.Skill.Name</h5>
-                        </div>
-                        <div class="offcanvas-body">
-                          <!-- **** Skill details content goes here **** -->
-                          <p>@skill.Skill.Description</p>
-                        </div>
-                      </div>
-                    }
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <div class="col">
-              <div class="row mb-3">
-                <div class="col">
-                  <div class="card">
-                    <div class="card-header">
-                      <h5 class="card-title">Saving Throws</h5>
-                    </div>
-                    <div class="card-body">
-                      <div class="row">
-
-                        <!-- **** Saving Throws **** -->
-                        @foreach (var stat in Model.Character.Stats)
-                        {
-
-                          int profMultiplier = (Model.ProficientSaves.Contains(stat.Stat.Name) ? 1 : 0);
-                          
-                          <div class="col-lg-2 col-4 mb-3">
-                            <div class="card text-center">
-                              <div class="card-header">
-                                <h6 class="card-subtitle mb-2 text-muted">@stat.Stat.Abbreviation.ToUpper()</h6>
-                              </div>
-                              <div class="card-body">
-                                <h4 class="card-subtitle mb-2 text-muted">@(stat.Modifier >= 0 ? "+" : "")@(stat.Modifier + Model.ProficiencyBonus * profMultiplier) </h4>
-                              </div>
-                            </div>
-                          </div>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row d-flex align-items-stretch">
-                <div class="col-lg-6 mb-3">
-                  <div class="card h-100">
-                    <div class="card-header">
-                      <h5 class="card-title">Passive Senses</h5>
-                    </div>
-                    <div class="card-body">
-                      @{
-                        var wis = Model.Character.Stats.First(s => s.Stat.Abbreviation == "Wis");
-                        var intStat = Model.Character.Stats.First(s => s.Stat.Abbreviation == "Int");
-
-                        var perception = Model.Character.Skills.First(s => s.Skill.Name == "Perception");
-                        var investigation = Model.Character.Skills.First(s => s.Skill.Name == "Investigation");
-                        var insight = Model.Character.Skills.First(s => s.Skill.Name == "Insight");
-                      }
-                      <div class="card mb-3 overflow-hidden">
-                        <div class="row g-0">
-                          <div class="col-3 bg-body-secondary">
-                            <div class="card-body text-center">
-                              <h5 class="card-title">
-                                @(wis.Modifier + 10 + Model.ProficiencyBonus * perception.Proficiency)
-                              </h5>
-                            </div>
-                          </div>
-                          <div class="col">
-                            <div class="card-body">
-                              <h5 class="card-title text-muted">Perception</h5>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div class="card mb-3 overflow-hidden">
-                        <div class="row g-0">
-                          <div class="col-3 bg-body-secondary">
-                            <div class="card-body text-center">
-                              <h5 class="card-title">
-                                @(intStat.Modifier + 10 + Model.ProficiencyBonus * investigation.Proficiency)
-                              </h5>
-                            </div>
-                          </div>
-                          <div class="col">
-                            <div class="card-body">
-                              <h5 class="card-title text-muted">Investigation</h5>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="card mb-3 overflow-hidden">
-                        <div class="row g-0">
-                          <div class="col-3 bg-body-secondary">
-                            <div class="card-body text-center">
-                              <h5 class="card-title">
-                                @(wis.Modifier + 10 + Model.ProficiencyBonus * insight.Proficiency)
-                              </h5>
-                            </div>
-                          </div>
-                          <div class="col">
-                            <div class="card-body">
-                              <h5 class="card-title text-muted">Insight</h5>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-lg-6 mb-3">
-                  <div class="card h-100">
-                    <div class="card-header">
-                      <h5 class="card-title">Proficiencies &amp; Training</h5>
-                    </div>
-                    <div class="card-body">
-
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          @await Html.PartialAsync("./CharTabs/_AbilitiesTab.cshtml", Model)
         </div>
+
+        <!-- **** Actions Tab **** -->
+        <div class="tab-pane fade" id="actions" role="tabpanel">
+          @await Html.PartialAsync("./CharTabs/_ActionsTab.cshtml", Model)
+        </div>
+
+        <!-- **** Inventory Tab **** -->
+        <div class="tab-pane fade" id="inventory" role="tabpanel">
+          @await Html.PartialAsync("./CharTabs/_InventoryTab.cshtml", Model)
+        </div>
+
+        <!-- **** Features Tab **** -->
+        <div class="tab-pane fade" id="features" role="tabpanel">
+          @await Html.PartialAsync("./CharTabs/_FeaturesTab.cshtml", Model)
+        </div>
+
+        <!-- **** Background Tab **** -->
+        <div class="tab-pane fade" id="background" role="tabpanel">
+          @await Html.PartialAsync("./CharTabs/_BackgroundTab.cshtml", Model)
+        </div>
+
+        <!-- **** Notes Tab **** -->
+        <div class="tab-pane fade" id="notes" role="tabpanel">
+          @await Html.PartialAsync("./CharTabs/_NotesTab.cshtml", Model)
+        </div>
+        
       </div>
     </div>
   </div>

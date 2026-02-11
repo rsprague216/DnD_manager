@@ -1,0 +1,16 @@
+@model DnD_Manager.Pages.PlayerCharacters.CharacterModel
+
+<h3>Class Features</h3>
+@foreach (var charClass in Model.Character.CharacterClasses)
+{
+  <h4>@charClass.Class.Name</h4>
+  @foreach (var feature in charClass.Class.ClassFeatures)
+  {
+    @if (feature.FeatureLevel <= charClass.Level)
+    {
+      <p>
+        <strong>@feature.Name (@feature.FeatureLevel)</strong> - @feature.Description
+      </p>
+    }
+  }
+}

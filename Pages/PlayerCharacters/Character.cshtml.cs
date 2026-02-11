@@ -38,8 +38,54 @@ public class CharacterModel : PageModel
     [BindProperty]
     public int ExhaustionLevel { get; set; } = 0;
 
+    // vision types
+    public Dictionary<string, int> VisionTypes { get; set; } = new Dictionary<string, int>
+    {
+        { "Darkvision", 60 },
+        { "Blindsight", 10 },
+        { "Truesight", 0 },
+        { "Tremorsense", 0}
+    };
 
-    // TEMPORARY LISTS *****************
+    // Proficiencies and Training
+    public Dictionary<string, List<string>> Proficiencies { get; set; } = new Dictionary<string, List<string>>
+    {
+        {
+            "Armor",
+            new List<string>()
+            {
+                "Light Armor",
+                "Medium Armor",
+                "Heavy Armor"
+            }
+        },
+        {
+            "Weapons",
+            new List<string>()
+            {
+                "Simple Weapons",
+                "Martial Weapons"
+            }
+        },
+        {
+            "Tools",
+            new List<string>()
+            {
+                "Thieves' Tools",
+                "Musical Instruments"
+            }
+        },
+        {
+            "Languages",
+            new List<string>()
+            {
+                "Common",
+                "Elvish",
+                "Dwarvish"
+            }
+        }
+    };
+
     public List<string> Resistances { get; set; } = new List<string>
     {
         "Acid",
@@ -57,7 +103,6 @@ public class CharacterModel : PageModel
         "Fire",
         "Lightning"
     };
-    // TEMPORARY LISTS *****************
 
     public async Task<IActionResult> OnGetAsync(int? id)
     {
@@ -67,7 +112,7 @@ public class CharacterModel : PageModel
             .Include(character => character.Race)
             .Include(character => character.Subrace)
             .Include(character => character.Stats).ThenInclude(charStat => charStat.Stat)
-            .Include(character => character.CharacterClasses).ThenInclude(charClass => charClass.Class)
+            .Include(character => character.CharacterClasses).ThenInclude(charClass => charClass.Class).ThenInclude(charClass => charClass.ClassFeatures)
             .Include(character => character.Conditions).ThenInclude(charCondition => charCondition.Condition)
             .Include(character => character.Skills).ThenInclude(charSkill => charSkill.Skill)
             .FirstOrDefaultAsync(character => character.Id == id);

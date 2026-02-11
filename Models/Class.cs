@@ -33,4 +33,5 @@ public class Class
 
     // Navigation properties
     public ICollection<CharacterClass> CharacterClasses { get; set; } = null!;
+    public ICollection<ClassFeature> ClassFeatures { get; set; } = null!;
 }

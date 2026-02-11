@@ -1,0 +1,217 @@
+@model DnD_Manager.Pages.PlayerCharacters.CharacterModel
+
+<div class="row">
+  @foreach (var stat in Model.Character.Stats)
+  {
+    <div class="col-lg-2 col-4 mb-3">
+      <div class="card text-center">
+        <div class="card-header">
+          <h6 class="card-subtitle mb-2 text-muted">@stat.Stat.Abbreviation.ToUpper()</h6>
+        </div>
+        <div class="card-body">
+          <h4 class="card-subtitle mb-2 text-muted">@(stat.Modifier >= 0 ? "+" : "")@stat.Modifier</h4>
+        </div>
+        <div class="card-footer">
+          <p class="card-text text-muted">@stat.Value</p>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<div class="row">
+  <div class="col-lg-4 col-md-6 mb-3">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Skills</h5>
+      </div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item border-0 mb-0 text-muted small d-flex align-items-center">
+            <span style="flex:0 0 15%">Prof</span>
+            <span style="flex:0 0 15%">Mod</span>
+            <span style="flex:1 0 auto">Skill</span>
+            <span class="float-end" style="flex:0 0 10%">Bonus</span>
+          </li>
+          @foreach (var skill in Model.Character.Skills)
+          {
+            int statModifier = Model.Character.Stats.Single(stat => stat.Stat.Id == skill.Skill.StatId).Modifier + Model.ProficiencyBonus * skill.Proficiency;
+              <li class="list-group-item @(skill.Skill.Name == "Survival" ? "border-0": "") d-flex">
+                <span style="flex:0 0 15%">
+                  @if (skill.Proficiency == 0)
+                  {
+                    <i class="bi bi-circle"></i>
+                  }
+                  else if (skill.Proficiency == 1)
+                  {
+                    <i class="bi bi-circle-fill"></i>
+                  }
+                  else if (skill.Proficiency == 2)
+                  {
+                    <i class="bi bi-record-circle-fill"></i>
+                  }
+                </span>
+                <span class="text-muted small" style="flex:0 0 15%">@skill.Skill.Stat.Abbreviation</span>
+                <span class="small" style="flex:1 0 auto"><a class="text-reset text-decoration-none" data-bs-toggle="offcanvas" href="#skillOffCanvas_@skill.SkillId" role="button" aria-controls="skillOffCanvas">@skill.Skill.Name</a></span>
+              <span class="border border-secondary rounded text-center small" style="flex:0 0 10%">@(statModifier < 0 ? "" : "+")@statModifier</span>
+            </li>
+
+            <!-- **** Offcanvas for Skills **** -->
+            <div class="offcanvas offcanvas-end" tabindex="-1" id="skillOffCanvas_@skill.SkillId" aria-labelledby="skillOffCanvasLabel">
+              <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="skillOffCanvasLabel">@skill.Skill.Name</h5>
+              </div>
+              <div class="offcanvas-body">
+                <!-- **** Skill details content goes here **** -->
+                <p>@skill.Skill.Description</p>
+              </div>
+            </div>
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="row mb-3">
+      <div class="col">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">Saving Throws</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+
+              <!-- **** Saving Throws **** -->
+              @foreach (var stat in Model.Character.Stats)
+              {
+
+                int profMultiplier = (Model.ProficientSaves.Contains(stat.Stat.Name) ? 1 : 0);
+                
+                <div class="col-lg-2 col-4 mb-3">
+                  <div class="card text-center">
+                    <div class="card-header">
+                      <h6 class="card-subtitle mb-2 text-muted">@stat.Stat.Abbreviation.ToUpper()</h6>
+                    </div>
+                    <div class="card-body">
+                      <h4 class="card-subtitle mb-2 text-muted">@(stat.Modifier >= 0 ? "+" : "")@(stat.Modifier + Model.ProficiencyBonus * profMultiplier) </h4>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row d-flex align-items-stretch">
+      <div class="col-lg-6 mb-3">
+        <div class="card h-100">
+          <div class="card-header">
+            <h5 class="card-title">Passive Senses</h5>
+          </div>
+          <div class="card-body">
+            @{
+              var wis = Model.Character.Stats.First(s => s.Stat.Abbreviation == "Wis");
+              var intStat = Model.Character.Stats.First(s => s.Stat.Abbreviation == "Int");
+
+              var perception = Model.Character.Skills.First(s => s.Skill.Name == "Perception");
+              var investigation = Model.Character.Skills.First(s => s.Skill.Name == "Investigation");
+              var insight = Model.Character.Skills.First(s => s.Skill.Name == "Insight");
+            }
+            <div class="card mb-3 overflow-hidden">
+              <div class="row g-0">
+                <div class="col-3 bg-body-secondary">
+                  <div class="card-body text-center">
+                    <h5 class="card-title">
+                      @(wis.Modifier + 10 + Model.ProficiencyBonus * perception.Proficiency)
+                    </h5>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="card-body">
+                    <h5 class="card-title text-muted">Perception</h5>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card mb-3 overflow-hidden">
+              <div class="row g-0">
+                <div class="col-3 bg-body-secondary">
+                  <div class="card-body text-center">
+                    <h5 class="card-title">
+                      @(intStat.Modifier + 10 + Model.ProficiencyBonus * investigation.Proficiency)
+                    </h5>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="card-body">
+                    <h5 class="card-title text-muted">Investigation</h5>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3 overflow-hidden">
+              <div class="row g-0">
+                <div class="col-3 bg-body-secondary">
+                  <div class="card-body text-center">
+                    <h5 class="card-title">
+                      @(wis.Modifier + 10 + Model.ProficiencyBonus * insight.Proficiency)
+                    </h5>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="card-body">
+                    <h5 class="card-title text-muted">Insight</h5>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ul class="list-group list-group-flush">
+              @foreach (var sense in Model.VisionTypes)
+              {
+                @if (sense.Value > 0)
+                {
+                  <li class="list-group text-muted small">
+                    @sense.Key @sense.Value ft
+                  </li>
+                }
+              }
+            </ul>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- **** Proficiencies & Training **** -->
+      <div class="col-lg-6 mb-3">
+        <div class="card h-100">
+          <div class="card-header">
+            <h5 class="card-title">Proficiencies &amp; Training</h5>
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              @foreach (var profList in Model.Proficiencies)
+              {
+                <li class="list-group-item">
+                  <h6 class="card-subtitle mb-2 small text-muted">@profList.Key</h6>
+                  <p class="card-text text-muted">
+                    @for (int i = 0; i < profList.Value.Count; i++)
+                    {
+                      @($"{profList.Value[i]}") @(i < profList.Value.Count - 1 ? ", " : "")
+                    }
+                  </p>
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

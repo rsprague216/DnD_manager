@@ -12,6 +12,7 @@ public class CharacterContext : DbContext
     public DbSet<Subrace> Subraces { get; set; }
     public DbSet<Class> Classes { get; set; }
     public DbSet<CharacterClass> CharacterClasses { get; set; }
+    public DbSet<ClassFeature> ClassFeatures { get; set; }
     public DbSet<Skill> Skills { get; set; }
     public DbSet<CharacterSkill> CharacterSkills { get; set; }
     public DbSet<Condition> Conditions { get; set; }
@@ -29,23 +30,24 @@ public class CharacterContext : DbContext
         modelBuilder.Entity<Subrace>().ToTable("Subraces");
         modelBuilder.Entity<Class>().ToTable("Classes");
         modelBuilder.Entity<CharacterClass>().ToTable("CharacterClasses");
+        modelBuilder.Entity<ClassFeature>().ToTable("ClassFeatures");
         modelBuilder.Entity<Skill>().ToTable("Skills");
         modelBuilder.Entity<CharacterSkill>().ToTable("CharacterSkills");
         modelBuilder.Entity<Condition>().ToTable("Conditions");
         modelBuilder.Entity<CharacterCondition>().ToTable("CharacterConditions");
     }
 
-    public override int SaveChanges()
-    {
-        var entries = ChangeTracker.Entries()
-            .Where(e => e.State == EntityState.Added)
-            .ToList();
+    // public override int SaveChanges()
+    // {
+    //     var entries = ChangeTracker.Entries()
+    //         .Where(e => e.State == EntityState.Added)
+    //         .ToList();
 
-        foreach (var entry in entries)
-        {
-            Console.WriteLine($"ADDING: {entry.Entity.GetType().Name}");
-        }
+    //     foreach (var entry in entries)
+    //     {
+    //         Console.WriteLine($"ADDING: {entry.Entity.GetType().Name}");
+    //     }
 
-        return base.SaveChanges();
-    }
+    //     return base.SaveChanges();
+    // }
 }
