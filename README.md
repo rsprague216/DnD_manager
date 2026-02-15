@@ -31,7 +31,7 @@ A D&D 5th Edition character management web application built with ASP.NET Core B
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/DnD_manager.git
+   git clone https://github.com/rsprague216/DnD_manager.git
    cd DnD_manager
    ```
 
