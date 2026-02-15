@@ -1,0 +1,75 @@
+<div class="modal-backdrop fade show"></div>
+<div class="modal fade show d-block" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Defences</h5>
+        <button type="button" class="btn-close" @onclick="OnClose"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container">
+          <div class="row d-flex align-items-stretch">
+            <div class="col-lg-4 mb-3">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h6 class="card-subtitle mb-2 text-muted">Resistances</h6>
+                </div>
+                <div class="card-body">
+                  <ul class="list-group list-group-flush">
+                    @foreach (var resistance in Resistances)
+                    {
+                      <li class="list-group">
+                        <span>@resistance</span>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 mb-3">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h6 class="card-subtitle mb-2 text-muted">Immunities</h6>
+                </div>
+                <div class="card-body">
+                  <ul class="list-group list-group-flush">
+                    @foreach (var immunity in Immunities)
+                    {
+                      <li class="list-group">
+                        <span>@immunity</span>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 mb-3">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h6 class="card-subtitle mb-2 text-muted">Vulnerabilities</h6>
+                </div>
+                <div class="card-body">
+                  <ul class="list-group list-group-flush">
+                    @foreach (var vulnerability in Vulnerabilities)
+                    {
+                      <li class="list-group">
+                        <span>@vulnerability</span>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@code {
+    [Parameter] public List<string> Resistances { get; set; } = new();
+    [Parameter] public List<string> Immunities { get; set; } = new();
+    [Parameter] public List<string> Vulnerabilities { get; set; } = new();
+    [Parameter] public EventCallback OnClose { get; set; }
+}

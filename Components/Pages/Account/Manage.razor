@@ -1,0 +1,157 @@
+@page "/account/manage"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject NavigationManager Navigation
+
+<PageTitle>Account Settings - DnD Manager</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <h2>Account Settings</h2>
+
+        @if (!string.IsNullOrEmpty(statusMessage))
+        {
+            <div class="alert @(isError ? "alert-danger" : "alert-success")">@statusMessage</div>
+        }
+
+        <div class="card mb-4">
+            <div class="card-header"><h5 class="mb-0">Profile</h5></div>
+            <div class="card-body">
+                <EditForm Model="ProfileInput" method="post" OnValidSubmit="UpdateProfile" FormName="profile">
+                    <DataAnnotationsValidator />
+                    <div class="mb-3">
+                        <label for="displayName" class="form-label">Display Name</label>
+                        <InputText id="displayName" @bind-Value="ProfileInput.DisplayName" class="form-control" />
+                        <ValidationMessage For="() => ProfileInput.DisplayName" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="text" class="form-control" value="@currentEmail" disabled />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </EditForm>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h5 class="mb-0">Change Password</h5></div>
+            <div class="card-body">
+                <EditForm Model="PasswordInput" method="post" OnValidSubmit="ChangePassword" FormName="password">
+                    <DataAnnotationsValidator />
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Current Password</label>
+                        <InputText id="currentPassword" @bind-Value="PasswordInput.CurrentPassword" type="password" class="form-control" />
+                        <ValidationMessage For="() => PasswordInput.CurrentPassword" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">New Password</label>
+                        <InputText id="newPassword" @bind-Value="PasswordInput.NewPassword" type="password" class="form-control" />
+                        <ValidationMessage For="() => PasswordInput.NewPassword" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
+                        <InputText id="confirmNewPassword" @bind-Value="PasswordInput.ConfirmNewPassword" type="password" class="form-control" />
+                        <ValidationMessage For="() => PasswordInput.ConfirmNewPassword" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Change Password</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string? statusMessage;
+    private bool isError;
+    private string? currentEmail;
+    private ApplicationUser? currentUser;
+
+    [SupplyParameterFromForm(FormName = "profile")]
+    private ProfileModel ProfileInput { get; set; } = new();
+
+    [SupplyParameterFromForm(FormName = "password")]
+    private PasswordModel PasswordInput { get; set; } = new();
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState!;
+        currentUser = await UserManager.GetUserAsync(authState.User);
+        if (currentUser == null)
+        {
+            Navigation.NavigateTo("/account/login", forceLoad: true);
+            return;
+        }
+        currentEmail = currentUser.Email;
+        ProfileInput.DisplayName ??= currentUser.DisplayName ?? "";
+    }
+
+    private async Task UpdateProfile()
+    {
+        if (currentUser == null) return;
+
+        currentUser.DisplayName = ProfileInput.DisplayName;
+        var result = await UserManager.UpdateAsync(currentUser);
+        if (result.Succeeded)
+        {
+            statusMessage = "Profile updated.";
+            isError = false;
+        }
+        else
+        {
+            statusMessage = string.Join(", ", result.Errors.Select(e => e.Description));
+            isError = true;
+        }
+    }
+
+    private async Task ChangePassword()
+    {
+        if (currentUser == null) return;
+
+        if (PasswordInput.NewPassword != PasswordInput.ConfirmNewPassword)
+        {
+            statusMessage = "New passwords do not match.";
+            isError = true;
+            return;
+        }
+
+        var result = await UserManager.ChangePasswordAsync(
+            currentUser, PasswordInput.CurrentPassword, PasswordInput.NewPassword);
+
+        if (result.Succeeded)
+        {
+            await SignInManager.RefreshSignInAsync(currentUser);
+            statusMessage = "Password changed successfully.";
+            isError = false;
+            PasswordInput = new();
+        }
+        else
+        {
+            statusMessage = string.Join(", ", result.Errors.Select(e => e.Description));
+            isError = true;
+        }
+    }
+
+    private sealed class ProfileModel
+    {
+        [System.ComponentModel.DataAnnotations.Required]
+        public string? DisplayName { get; set; }
+    }
+
+    private sealed class PasswordModel
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Current password is required.")]
+        public string CurrentPassword { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "New password is required.")]
+        [System.ComponentModel.DataAnnotations.StringLength(100, MinimumLength = 8, ErrorMessage = "Password must be at least 8 characters.")]
+        public string NewPassword { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Please confirm your new password.")]
+        public string ConfirmNewPassword { get; set; } = "";
+    }
+}

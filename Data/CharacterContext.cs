@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using DnD_Manager.Models;
 
 namespace DnD_Manager.Data;
 
-public class CharacterContext : DbContext
+public class CharacterContext : IdentityDbContext<ApplicationUser>
 {
     public DbSet<Character> Characters { get; set; }
     public DbSet<Stat> Stats { get; set; }
@@ -23,6 +24,8 @@ public class CharacterContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Character>().ToTable("Characters");
         modelBuilder.Entity<Stat>().ToTable("Stats");
         modelBuilder.Entity<CharacterStat>().ToTable("CharacterStats");
@@ -36,18 +39,4 @@ public class CharacterContext : DbContext
         modelBuilder.Entity<Condition>().ToTable("Conditions");
         modelBuilder.Entity<CharacterCondition>().ToTable("CharacterConditions");
     }
-
-    // public override int SaveChanges()
-    // {
-    //     var entries = ChangeTracker.Entries()
-    //         .Where(e => e.State == EntityState.Added)
-    //         .ToList();
-
-    //     foreach (var entry in entries)
-    //     {
-    //         Console.WriteLine($"ADDING: {entry.Entity.GetType().Name}");
-    //     }
-
-    //     return base.SaveChanges();
-    // }
 }

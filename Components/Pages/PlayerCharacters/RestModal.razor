@@ -1,0 +1,113 @@
+<div class="modal-backdrop fade show"></div>
+<div class="modal fade show d-block" tabindex="-1">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <ul class="nav nav-pills">
+          <li class="nav-item">
+            <button class="nav-link @(activeTab == "short" ? "active" : "")"
+                    @onclick='() => activeTab = "short"'>Short Rest</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link @(activeTab == "long" ? "active" : "")"
+                    @onclick='() => activeTab = "long"'>Long Rest</button>
+          </li>
+        </ul>
+        <button type="button" class="btn-close" @onclick="Close"></button>
+      </div>
+      <div class="modal-body">
+        @if (activeTab == "short")
+        {
+          <p class="text-muted">
+            A short rest is a period of downtime, at least 1 hour long, during which a character does nothing more strenuous than eating, drinking, reading, and tending to wounds.
+          </p>
+          <h5>Recover</h5>
+          <ul class="list-group list-group-flush">
+            @foreach (var charClass in Character.CharacterClasses)
+            {
+              <li class="list-group-item">
+                <h6>@charClass.Class.Name @($"(Hit Dice: {charClass.Level - hitDiceState[charClass.Id]} d{charClass.Class.HitDie}{ConSymbol}{ConMod})")</h6>
+                <div>
+                  @for (int i = 0; i < charClass.Level; i++)
+                  {
+                    var idx = i;
+                    var classId = charClass.Id;
+                    <div class="form-check form-check-inline me-0 ms-0">
+                      <input class="form-check-input border border-dark" type="checkbox"
+                             checked="@(idx < hitDiceState[classId])"
+                             @onclick="() => OnHitDieClick(classId, idx)" />
+                    </div>
+                  }
+                </div>
+              </li>
+            }
+          </ul>
+          <button class="btn btn-primary mt-3" @onclick="TakeShortRest">Take Rest</button>
+        }
+        else
+        {
+          <p class="text-muted">
+            A long rest is a period of extended downtime, at least 8 hours long, during which a character sleeps for at least 6 hours and performs no more than 2 hours of light activity, such as reading, talking, eating, or standing watch.
+          </p>
+          <p class="text-muted">
+            If the rest is interrupted by a period of strenuous activity — at least 1 hour of walking, fighting, casting spells, or similar adventuring activity — the characters must begin the rest again to gain any benefit from it.
+          </p>
+          <button class="btn btn-primary" @onclick="TakeLongRest">Take Rest</button>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+@code {
+    [Parameter] public Character Character { get; set; } = default!;
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<Dictionary<int, int>> OnShortRest { get; set; }
+    [Parameter] public EventCallback OnLongRest { get; set; }
+
+    private string activeTab = "short";
+    private Dictionary<int, int> hitDiceState = new();
+
+    private int ConMod => Character.Stats.FirstOrDefault(s => s.Stat.Abbreviation == "Con")?.Modifier ?? 0;
+    private string ConSymbol => ConMod < 0 ? "" : "+";
+
+    protected override void OnInitialized()
+    {
+        foreach (var cc in Character.CharacterClasses)
+        {
+            hitDiceState[cc.Id] = cc.UsedHitDice;
+        }
+    }
+
+    private void OnHitDieClick(int classId, int index)
+    {
+        var currentCount = hitDiceState[classId];
+        if (index < currentCount)
+        {
+            hitDiceState[classId] = index;
+        }
+        else
+        {
+            hitDiceState[classId] = index + 1;
+        }
+    }
+
+    private async Task TakeShortRest()
+    {
+        await OnShortRest.InvokeAsync(hitDiceState);
+    }
+
+    private async Task TakeLongRest()
+    {
+        await OnLongRest.InvokeAsync();
+    }
+
+    private async Task Close()
+    {
+        foreach (var cc in Character.CharacterClasses)
+        {
+            hitDiceState[cc.Id] = cc.UsedHitDice;
+        }
+        await OnClose.InvokeAsync();
+    }
+}

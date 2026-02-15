@@ -1,0 +1,78 @@
+<div class="modal-backdrop fade show"></div>
+<div class="modal fade show d-block" tabindex="-1">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Conditions</h5>
+        <button type="button" class="btn-close" @onclick="Save"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="list-group list-group-flush">
+          @foreach (var condition in AllConditions)
+          {
+            bool isChecked = selectedConditionIds.Contains(condition.Id);
+            <li class="list-group-item">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="cond_@condition.Id"
+                       checked="@isChecked"
+                       @onchange="e => ToggleCondition(condition.Id, (bool)e.Value!)" />
+                <label class="form-check-label" for="cond_@condition.Id">@condition.Name</label>
+              </div>
+            </li>
+          }
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <div class="w-100">
+          <span class="text-muted float-start">Exhaustion: </span>
+        </div>
+        <div class="btn-group w-100" role="group">
+          <input type="radio" class="btn-check" name="exhaustion" id="exhaustion0"
+                 checked="@(exhaustionLevel == 0)"
+                 @onchange="() => exhaustionLevel = 0" />
+          <label class="btn btn-outline-secondary" for="exhaustion0">--</label>
+          @for (int i = 1; i <= 6; i++)
+          {
+            var level = i;
+            <input type="radio" class="btn-check" name="exhaustion" id="@($"exhaustion{level}")"
+                   checked="@(exhaustionLevel == level)"
+                   @onchange="() => exhaustionLevel = level" />
+            <label class="btn btn-outline-secondary" for="@($"exhaustion{level}")">@level</label>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@code {
+    [Parameter] public Character Character { get; set; } = default!;
+    [Parameter] public List<Condition> AllConditions { get; set; } = new();
+    [Parameter] public EventCallback<ConditionsResult> OnClose { get; set; }
+
+    private HashSet<int> selectedConditionIds = new();
+    private int exhaustionLevel;
+
+    protected override void OnInitialized()
+    {
+        selectedConditionIds = Character.Conditions.Select(c => c.ConditionId).ToHashSet();
+        exhaustionLevel = Character.ExhaustionLevel;
+    }
+
+    private void ToggleCondition(int conditionId, bool isChecked)
+    {
+        if (isChecked)
+            selectedConditionIds.Add(conditionId);
+        else
+            selectedConditionIds.Remove(conditionId);
+    }
+
+    private async Task Save()
+    {
+        await OnClose.InvokeAsync(new ConditionsResult
+        {
+            SelectedConditionIds = selectedConditionIds.ToList(),
+            ExhaustionLevel = exhaustionLevel
+        });
+    }
+}

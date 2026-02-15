@@ -26,6 +26,11 @@ public class Character
     [Range(0, 6)]
     public int ExhaustionLevel { get; set; } = 0;
 
+    // User ownership
+    [Required]
+    public string UserId { get; set; } = string.Empty;
+    public ApplicationUser User { get; set; } = null!;
+
     // Navigation properties
     public ICollection<CharacterStat> Stats { get; set; } = null!;
     public Race Race { get; set; } = null!;

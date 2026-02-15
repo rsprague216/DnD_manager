@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="../build/DnD_Manager.props" />
-</Project>

@@ -1,0 +1,351 @@
+@page "/characters/{Id:int}"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@inject CharacterService CharacterService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+<PageTitle>@(Character?.Name ?? "Loading") - DnD Manager</PageTitle>
+
+@if (Character == null)
+{
+  <p>Loading...</p>
+  return;
+}
+
+<div class="container">
+  <div class="row d-flex align-items-stretch">
+
+    <!-- Main character card -->
+    <div class="col-lg-9 mb-3">
+      <div class="card h-100">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-10 d-flex align-items-center">
+              <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+                   class="img-thumbnail me-3" style="width: 80px; height: 80px; object-fit: cover;" />
+              <div class="overflow-hidden">
+                <h3 class="card-title text-nowrap text-truncate">@Character.Name</h3>
+                <h5 class="card-subtitle text-muted text-nowrap text-truncate">
+                  @Character.Race.Name
+                  @foreach (var charClass in Character.CharacterClasses)
+                  {
+                    @($" / {charClass.Class.Name} {charClass.Level}")
+                  }
+                </h5>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="btn-group dropstart float-end">
+                <button type="button" class="btn btn-outline-secondary btn-sm border-0 rounded" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="bi bi-gear-fill"></i>
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="/characters/@Character.Id">Level Up</a></li>
+                  <li><a class="dropdown-item" href="/characters/@Character.Id">Edit Character</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-8">
+              <!-- Hit Points -->
+              <div class="row mb-3 align-items-center">
+                <div class="col">
+                  <div class="progress" style="height: 20px;">
+                    @{
+                      var total = Character.HitPoints + Character.TemporaryHitPoints;
+                      var hpPct = total > 0 ? ((double)Character.CurrentHitPoints / total) * 100 : 0;
+                      var tempPct = total > 0 ? ((double)Character.TemporaryHitPoints / total) * 100 : 0;
+                    }
+                    <div class="progress-bar bg-danger" role="progressbar"
+                         style="width: @($"{hpPct}%");">
+                      @Character.CurrentHitPoints / @Character.HitPoints
+                    </div>
+                    <div class="progress-bar bg-info" role="progressbar"
+                         style="width: @($"{tempPct}%");">
+                      @Character.TemporaryHitPoints
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row mb-3 align-items-center">
+                <div class="col-7">
+                  <div class="btn-group w-100" role="group">
+                    <button type="button" class="btn btn-outline-secondary"
+                            @onclick="() => showRestModal = true">Rest</button>
+                    <button type="button" class="btn btn-outline-secondary"
+                            @onclick="OpenConditionsModal">Conditions</button>
+                    <button type="button" class="btn btn-outline-secondary"
+                            @onclick="() => showDefencesModal = true">Defences</button>
+                  </div>
+                </div>
+                <div class="col-5">
+                  <div class="input-group">
+                    <input type="number" class="form-control" min="0"
+                           @bind="HealthAdj" />
+                    <button type="button" class="btn btn-outline-danger"
+                            @onclick="ApplyDamage">Damage</button>
+                    <button type="button" class="btn btn-outline-success dropdown-toggle dropdown-toggle-split"
+                            @onclick="() => showHealDropdown = !showHealDropdown"></button>
+                    @if (showHealDropdown)
+                    {
+                      <ul class="dropdown-menu dropdown-menu-end show" style="position: absolute; right: 0; top: 100%;">
+                        <li><button class="dropdown-item" @onclick="ApplyHealing">Heal</button></li>
+                        <li><button class="dropdown-item" @onclick="ApplyTempHP">Temp HP</button></li>
+                      </ul>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 flex-shrink-0">
+              <div class="card w-100 overflow-auto" style="height: 6em;">
+                <div class="card-body overflow-auto">
+                  <ul class="list-group list-group-flush">
+                    @if (Character.ExhaustionLevel > 0)
+                    {
+                      <li class="list-group text-muted text-center">
+                        Exhaustion Lvl: @Character.ExhaustionLevel
+                      </li>
+                    }
+                    @foreach (var condition in Character.Conditions)
+                    {
+                      <li class="list-group text-muted text-center">
+                        <a class="text-reset text-decoration-none" data-bs-toggle="offcanvas"
+                           href="#conditionOffCanvas_@condition.Id" role="button">@condition.Condition.Name</a>
+                      </li>
+                      <div class="offcanvas offcanvas-end" tabindex="-1" id="conditionOffCanvas_@condition.Id">
+                        <div class="offcanvas-header">
+                          <h5 class="offcanvas-title">@condition.Condition.Name</h5>
+                          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                          <p class="text-muted">@condition.Condition.Description</p>
+                        </div>
+                      </div>
+                    }
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick stats panel -->
+    <div class="col-lg-3 mb-3">
+      <div class="card text-center h-100">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-6 col-3 mb-3">
+              <div class="card text-center">
+                <div class="card-header py-2">
+                  <small class="card-subtitle mb-2 text-muted">AC</small>
+                </div>
+                <div class="card-body py-2 px-1">
+                  <h4 class="card-subtitle mb-2 text-muted">@ArmorClass</h4>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 col-3 mb-3">
+              <div class="card text-center">
+                <div class="card-header py-2">
+                  <small class="card-subtitle mb-2 text-muted">Init</small>
+                </div>
+                <div class="card-body py-2 px-1">
+                  <h4 class="card-subtitle mb-2 text-muted">@(Initiative < 0 ? "" : "+")@Initiative</h4>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 col-3 mb-3">
+              <div class="card text-center">
+                <div class="card-header py-2">
+                  <small class="card-subtitle mb-2 text-muted">Speed</small>
+                </div>
+                <div class="card-body py-2 px-1">
+                  <h4 class="card-subtitle mb-2 text-muted">@Speed ft</h4>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 col-3 mb-3">
+              <div class="card text-center">
+                <div class="card-header py-2">
+                  <small class="card-subtitle mb-2 text-muted">Prof</small>
+                </div>
+                <div class="card-body py-2 px-1">
+                  <h4 class="card-subtitle mb-2 text-muted">+@ProficiencyBonus</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body card with tabs -->
+  <div class="card">
+    <div class="card-header">
+      <ul class="nav nav-tabs card-header-tabs" role="tablist">
+        @foreach (var tab in Tabs)
+        {
+          <li class="nav-item">
+            <button class="nav-link @(ActiveTab == tab ? "active" : "")"
+                    @onclick="() => ActiveTab = tab">@tab</button>
+          </li>
+        }
+      </ul>
+    </div>
+    <div class="card-body">
+      @switch (ActiveTab)
+      {
+        case "Abilities":
+          <AbilitiesTab Character="Character" ProficiencyBonus="ProficiencyBonus"
+                        ProficientSaves="ProficientSaves" />
+          break;
+        case "Actions":
+          <ActionsTab />
+          break;
+        case "Inventory":
+          <InventoryTab />
+          break;
+        case "Features":
+          <FeaturesTab Character="Character" />
+          break;
+        case "Background":
+          <BackgroundTab />
+          break;
+        case "Notes":
+          <NotesTab />
+          break;
+      }
+    </div>
+  </div>
+</div>
+
+@if (showRestModal)
+{
+  <RestModal Character="Character"
+             OnClose="CloseRestModal"
+             OnShortRest="HandleShortRest"
+             OnLongRest="HandleLongRest" />
+}
+
+@if (showConditionsModal)
+{
+  <ConditionsModal Character="Character"
+                   AllConditions="AllConditions"
+                   OnClose="HandleConditionsClose" />
+}
+
+@if (showDefencesModal)
+{
+  <DefencesModal Resistances="Resistances" Immunities="Immunities"
+                 Vulnerabilities="Vulnerabilities"
+                 OnClose="() => showDefencesModal = false" />
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private Character? Character;
+    private List<Condition> AllConditions = new();
+    private int HealthAdj;
+    private string ActiveTab = "Abilities";
+    private string[] Tabs = { "Abilities", "Actions", "Inventory", "Features", "Background", "Notes" };
+
+    private bool showRestModal;
+    private bool showConditionsModal;
+    private bool showDefencesModal;
+    private bool showHealDropdown;
+
+    // Computed properties
+    private int ArmorClass => Character != null ? CharacterService.CalcArmorClass(Character) : 0;
+    private int ProficiencyBonus => Character != null ? CharacterService.CalcProficiencyBonus(Character) : 0;
+    private int Initiative => Character != null ? CharacterService.CalcInitiative(Character) : 0;
+    private int Speed => Character != null ? CharacterService.CalcSpeed(Character) : 0;
+    private List<string> ProficientSaves => Character != null ? CharacterService.GetProficientSaves(Character) : new();
+
+    // Hardcoded data (same as original page model -- will be database-driven in future phases)
+    private List<string> Resistances = new() { "Acid", "Cold", "Prone" };
+    private List<string> Immunities = new() { "Poison", "Fear", "Charmed" };
+    private List<string> Vulnerabilities = new() { "Fire", "Lightning" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (userId == null || !await CharacterService.IsCharacterOwnerAsync(Id, userId))
+        {
+            Navigation.NavigateTo("/characters");
+            return;
+        }
+
+        await LoadCharacter();
+        AllConditions = await CharacterService.GetAllConditionsAsync();
+    }
+
+    private async Task LoadCharacter()
+    {
+        Character = await CharacterService.GetCharacterByIdAsync(Id);
+    }
+
+    private async Task ApplyDamage()
+    {
+        await CharacterService.ApplyDamageAsync(Id, HealthAdj);
+        await LoadCharacter();
+        HealthAdj = 0;
+    }
+
+    private async Task ApplyHealing()
+    {
+        await CharacterService.ApplyHealingAsync(Id, HealthAdj);
+        await LoadCharacter();
+        HealthAdj = 0;
+        showHealDropdown = false;
+    }
+
+    private async Task ApplyTempHP()
+    {
+        await CharacterService.SetTempHPAsync(Id, HealthAdj);
+        await LoadCharacter();
+        HealthAdj = 0;
+        showHealDropdown = false;
+    }
+
+    private void OpenConditionsModal()
+    {
+        showConditionsModal = true;
+    }
+
+    private async Task HandleConditionsClose(ConditionsResult result)
+    {
+        await CharacterService.ToggleConditionsAsync(Id, result.SelectedConditionIds, result.ExhaustionLevel);
+        await LoadCharacter();
+        showConditionsModal = false;
+    }
+
+    private async Task HandleShortRest(Dictionary<int, int> usedHitDiceCounts)
+    {
+        await CharacterService.ShortRestAsync(Id, usedHitDiceCounts);
+        await LoadCharacter();
+        showRestModal = false;
+    }
+
+    private async Task HandleLongRest()
+    {
+        await CharacterService.LongRestAsync(Id);
+        await LoadCharacter();
+        showRestModal = false;
+    }
+
+    private void CloseRestModal()
+    {
+        showRestModal = false;
+    }
+}
